@@ -1,0 +1,879 @@
+{
+  "events": [
+    {
+      "id": "9042",
+      "title": "Fudokan karate üzrə turnir (2-ci liqa)",
+      "date": "2026-06-25",
+      "location": "İsmayıllı Olimpiya İdman Kompleksi",
+      "locationUrl": "https://www.google.com/maps/place/%D0%A1%D0%BF%D0%BE%D1%80%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B9+%D0%BB%D0%B8%D1%86%D0%B5%D0%B9+V%C9%99t%C9%99n/@40.428243,49.8521594,18z/data=!4m14!1m7!3m6!1s0x403089003025ba6f:0xc09e0fca90579543!2z0KHQv9C-0YDRgtC40LLQvdGL0Lkg0LvQuNGG0LXQuSBWyZl0yZlu!8m2!3d40.4282042!4d49.8534522!16s%2Fg%2F11l_0jq9m8!3m5!1s0x403089003025ba6f:0xc09e0fca90579543!8m2!3d40.4282042!4d49.8534522!16s%2Fg%2F11l_0jq9m8?entry=ttu&g_ep=EgoyMDI2MDYxNi4wIKXMDSoASAFQAw%3D%3D",
+      "description": "Fudokan karate növləri üzrə klublararası turnir. Rəsmi WKF/Şito-ryu qaydaları tətbiq olunur. Cədvəl, püşkatma və canlı xal sistemi bu portaldadır.",
+      "status": "active",
+      "registrationStatus": "closed"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-1",
+      "eventId": "9042",
+      "name": "U8, -25kg, Oğlanlar (Şito-ryu)",
+      "gender": "Oğlan",
+      "age": "U8",
+      "weight": "-25kg",
+      "type": "kumite"
+    },
+    {
+      "id": "cat-2",
+      "eventId": "9042",
+      "name": "U10, -30kg, Oğlanlar (Şito-ryu)",
+      "gender": "Oğlan",
+      "age": "U10",
+      "weight": "-30kg",
+      "type": "kumite"
+    },
+    {
+      "id": "cat-3",
+      "eventId": "9042",
+      "name": "U12, -35kg, Qızlar (Şito-ryu)",
+      "gender": "Qız",
+      "age": "U12",
+      "weight": "-35kg",
+      "type": "kumite"
+    },
+    {
+      "id": "cat-4",
+      "eventId": "9042",
+      "name": "U14, -45kg, Oğlanlar (Şito-ryu)",
+      "gender": "Oğlan",
+      "age": "U14",
+      "weight": "-45kg",
+      "type": "kumite"
+    },
+    {
+      "id": "cat-5",
+      "eventId": "9042",
+      "name": "U12, Kata, Qızlar (Şito-ryu)",
+      "gender": "Qız",
+      "age": "U12",
+      "weight": "Kata",
+      "type": "kata"
+    }
+  ],
+  "athletes": [
+    {
+      "id": "ath-1",
+      "name": "EMİL CAHANGİROV",
+      "club": "Baku Karate Club",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-2",
+      "name": "MÜBARİZ HÜSEYNZADƏ",
+      "club": "Zirvə Karate Klub",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-3",
+      "name": "UCAL İSMAYILOV",
+      "club": "Gənclik İK",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-4",
+      "name": "MEHDİ ƏLİYEV",
+      "club": "Arpaçay İK",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-5",
+      "name": "ÖMƏR AĞALAROV",
+      "club": "Baku Karate Club",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-6",
+      "name": "İBRAHİM AĞAZADƏ",
+      "club": "Qəbələ İK",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-7",
+      "name": "ARSLAN DADAŞOV",
+      "club": "Arpaçay İK",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-8",
+      "name": "SƏİD MƏŞƏDİYEV",
+      "club": "Zirvə Karate Klub",
+      "country": "AZE",
+      "categoryId": "cat-1"
+    },
+    {
+      "id": "ath-9",
+      "name": "ARZU BABAYEV",
+      "club": "Şəki İK",
+      "country": "AZE",
+      "categoryId": "cat-2"
+    },
+    {
+      "id": "ath-10",
+      "name": "RAMAL BABAYEV",
+      "club": "Baku Karate Club",
+      "country": "AZE",
+      "categoryId": "cat-2"
+    },
+    {
+      "id": "ath-11",
+      "name": "RAUL BABAZADƏ",
+      "club": "Qəbələ İK",
+      "country": "AZE",
+      "categoryId": "cat-2"
+    },
+    {
+      "id": "ath-12",
+      "name": "TUNCAY İBRAHİMOV",
+      "club": "Gənclik İK",
+      "country": "AZE",
+      "categoryId": "cat-2"
+    },
+    {
+      "id": "ath-13",
+      "name": "OMAR BABAYEV",
+      "club": "Baku Karate Club",
+      "country": "AZE",
+      "categoryId": "cat-2"
+    },
+    {
+      "id": "ath-14",
+      "name": "YUSİF KƏNİŞLİ",
+      "club": "Zirvə Karate Klub",
+      "country": "AZE",
+      "categoryId": "cat-2"
+    },
+    {
+      "id": "ath-15",
+      "name": "NURAY HUMBƏTOVA",
+      "club": "Baku Karate Club",
+      "country": "AZE",
+      "categoryId": "cat-3"
+    },
+    {
+      "id": "ath-16",
+      "name": "XƏDİCƏ ORUCOVA",
+      "club": "Arpaçay İK",
+      "country": "AZE",
+      "categoryId": "cat-3"
+    },
+    {
+      "id": "ath-17",
+      "name": "SEVDA ƏLƏKBƏRLİ",
+      "club": "Qəbələ İK",
+      "country": "AZE",
+      "categoryId": "cat-3"
+    },
+    {
+      "id": "ath-18",
+      "name": "NİHAD MURADZADƏ",
+      "club": "Zirvə Karate Klub",
+      "country": "AZE",
+      "categoryId": "cat-3"
+    },
+    {
+      "id": "ath-19",
+      "name": "AYLA ƏLİYEVA",
+      "club": "Baku Karate Club",
+      "country": "AZE",
+      "categoryId": "cat-5"
+    },
+    {
+      "id": "ath-20",
+      "name": "DƏRYA MƏMMƏDOVA",
+      "club": "Arpaçay İK",
+      "country": "AZE",
+      "categoryId": "cat-5"
+    },
+    {
+      "id": "ath-21",
+      "name": "ZƏHRƏ HƏSƏNOVA",
+      "club": "Baku Karate Club",
+      "country": "AZE",
+      "categoryId": "cat-5"
+    },
+    {
+      "id": "ath-22",
+      "name": "LEYLA İSMAYILOVA",
+      "club": "Arpaçay İK",
+      "country": "AZE",
+      "categoryId": "cat-5"
+    }
+  ],
+  "matches": [
+    {
+      "id": "match-cat-1-0-0",
+      "eventId": "9042",
+      "categoryId": "cat-1",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 0,
+      "athleteAkaId": "ath-1",
+      "athleteAoId": "ath-2",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-1-1-0",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-1-0-1",
+      "eventId": "9042",
+      "categoryId": "cat-1",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 1,
+      "athleteAkaId": "ath-4",
+      "athleteAoId": "ath-3",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-1-1-0",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-1-0-2",
+      "eventId": "9042",
+      "categoryId": "cat-1",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 2,
+      "athleteAkaId": "ath-6",
+      "athleteAoId": "ath-5",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-1-1-1",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-1-0-3",
+      "eventId": "9042",
+      "categoryId": "cat-1",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 3,
+      "athleteAkaId": "ath-8",
+      "athleteAoId": "ath-7",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-1-1-1",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-1-1-0",
+      "eventId": "9042",
+      "categoryId": "cat-1",
+      "roundName": "Yarımfinal",
+      "roundIndex": 1,
+      "matchIndex": 0,
+      "athleteAkaId": null,
+      "athleteAoId": null,
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-1-2-0",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-1-1-1",
+      "eventId": "9042",
+      "categoryId": "cat-1",
+      "roundName": "Yarımfinal",
+      "roundIndex": 1,
+      "matchIndex": 1,
+      "athleteAkaId": null,
+      "athleteAoId": null,
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-1-2-0",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-1-2-0",
+      "eventId": "9042",
+      "categoryId": "cat-1",
+      "roundName": "Final",
+      "roundIndex": 2,
+      "matchIndex": 0,
+      "athleteAkaId": null,
+      "athleteAoId": null,
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": null,
+      "nextMatchPosition": null
+    },
+    {
+      "id": "match-cat-2-0-0",
+      "eventId": "9042",
+      "categoryId": "cat-2",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 0,
+      "athleteAkaId": "ath-10",
+      "athleteAoId": "ath-9",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-2-1-0",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-2-0-1",
+      "eventId": "9042",
+      "categoryId": "cat-2",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 1,
+      "athleteAkaId": "ath-11",
+      "athleteAoId": "ath-12",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-2-1-0",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-2-0-2",
+      "eventId": "9042",
+      "categoryId": "cat-2",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 2,
+      "athleteAkaId": "ath-14",
+      "athleteAoId": "ath-13",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-2-1-1",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-2-0-3",
+      "eventId": "9042",
+      "categoryId": "cat-2",
+      "roundName": "1/4",
+      "roundIndex": 0,
+      "matchIndex": 3,
+      "athleteAkaId": "BYE",
+      "athleteAoId": "BYE",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": "BYE",
+      "status": "completed",
+      "nextMatchId": "match-cat-2-1-1",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-2-1-0",
+      "eventId": "9042",
+      "categoryId": "cat-2",
+      "roundName": "Yarımfinal",
+      "roundIndex": 1,
+      "matchIndex": 0,
+      "athleteAkaId": null,
+      "athleteAoId": null,
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-2-2-0",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-2-1-1",
+      "eventId": "9042",
+      "categoryId": "cat-2",
+      "roundName": "Yarımfinal",
+      "roundIndex": 1,
+      "matchIndex": 1,
+      "athleteAkaId": null,
+      "athleteAoId": "BYE",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "completed",
+      "nextMatchId": "match-cat-2-2-0",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-2-2-0",
+      "eventId": "9042",
+      "categoryId": "cat-2",
+      "roundName": "Final",
+      "roundIndex": 2,
+      "matchIndex": 0,
+      "athleteAkaId": null,
+      "athleteAoId": null,
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": null,
+      "nextMatchPosition": null
+    },
+    {
+      "id": "match-cat-3-0-0",
+      "eventId": "9042",
+      "categoryId": "cat-3",
+      "roundName": "Yarımfinal",
+      "roundIndex": 0,
+      "matchIndex": 0,
+      "athleteAkaId": "ath-15",
+      "athleteAoId": "ath-16",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-3-1-0",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-3-0-1",
+      "eventId": "9042",
+      "categoryId": "cat-3",
+      "roundName": "Yarımfinal",
+      "roundIndex": 0,
+      "matchIndex": 1,
+      "athleteAkaId": "ath-17",
+      "athleteAoId": "ath-18",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-3-1-0",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-3-1-0",
+      "eventId": "9042",
+      "categoryId": "cat-3",
+      "roundName": "Final",
+      "roundIndex": 1,
+      "matchIndex": 0,
+      "athleteAkaId": null,
+      "athleteAoId": null,
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": null,
+      "nextMatchPosition": null
+    },
+    {
+      "id": "match-cat-5-0-0",
+      "eventId": "9042",
+      "categoryId": "cat-5",
+      "roundName": "Yarımfinal",
+      "roundIndex": 0,
+      "matchIndex": 0,
+      "athleteAkaId": "ath-19",
+      "athleteAoId": "ath-20",
+      "scoreAka": 22.5,
+      "scoreAo": 22.5,
+      "kataScoresAka": [
+        7.7,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": "ath-19",
+      "status": "completed",
+      "nextMatchId": "match-cat-5-1-0",
+      "nextMatchPosition": "Aka"
+    },
+    {
+      "id": "match-cat-5-0-1",
+      "eventId": "9042",
+      "categoryId": "cat-5",
+      "roundName": "Yarımfinal",
+      "roundIndex": 0,
+      "matchIndex": 1,
+      "athleteAkaId": "ath-21",
+      "athleteAoId": "ath-22",
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": "match-cat-5-1-0",
+      "nextMatchPosition": "Ao"
+    },
+    {
+      "id": "match-cat-5-1-0",
+      "eventId": "9042",
+      "categoryId": "cat-5",
+      "roundName": "Final",
+      "roundIndex": 1,
+      "matchIndex": 0,
+      "athleteAkaId": "ath-19",
+      "athleteAoId": null,
+      "scoreAka": 0,
+      "scoreAo": 0,
+      "kataScoresAka": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "kataScoresAo": [
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5
+      ],
+      "warningsAka": [],
+      "warningsAo": [],
+      "senshu": null,
+      "winnerId": null,
+      "status": "scheduled",
+      "nextMatchId": null,
+      "nextMatchPosition": null
+    }
+  ]
+}
