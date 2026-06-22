@@ -1,4 +1,40 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:5000/api'
+  : '/api';
+
+function getHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+}
+
+export async function loginUser(username, password) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Login failed');
+  }
+  return res.json();
+}
+
+export async function registerUser(userData) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Registration failed');
+  }
+  return res.json();
+}
 
 export async function fetchEvents() {
   const res = await fetch(`${API_BASE}/events`);
@@ -15,7 +51,7 @@ export async function fetchEventDetails(id) {
 export async function updateEventDetails(id, eventData) {
   const res = await fetch(`${API_BASE}/events/${id}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getHeaders(),
     body: JSON.stringify(eventData)
   });
   if (!res.ok) throw new Error('Turnir detallarını yeniləmək mümkün olmadı');
@@ -43,7 +79,7 @@ export async function fetchDraws(categoryId) {
 export async function generateDraws(eventId, categoryId) {
   const res = await fetch(`${API_BASE}/categories/${categoryId}/generate-draws`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getHeaders(),
     body: JSON.stringify({ eventId })
   });
   if (!res.ok) throw new Error('Püşkatmanı yenidən yaratmaq mümkün olmadı');
@@ -53,7 +89,7 @@ export async function generateDraws(eventId, categoryId) {
 export async function registerAthlete(categoryId, athleteData) {
   const res = await fetch(`${API_BASE}/categories/${categoryId}/athletes`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getHeaders(),
     body: JSON.stringify(athleteData)
   });
   if (!res.ok) throw new Error('İdmançı qeydiyyatı uğursuz oldu');
@@ -75,7 +111,7 @@ export async function fetchMatchDetails(matchId) {
 export async function updateMatchScore(matchId, scoreData) {
   const res = await fetch(`${API_BASE}/matches/${matchId}/score`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getHeaders(),
     body: JSON.stringify(scoreData)
   });
   if (!res.ok) throw new Error('Xal məlumatını yeniləmək mümkün olmadı');

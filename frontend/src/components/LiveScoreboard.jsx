@@ -400,7 +400,7 @@ export default function LiveScoreboard({ matchId, onBack, categories, language }
 
           <div className="text-center">
             <span className="text-[10px] uppercase font-extrabold tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-              {cat?.name || 'Şito-ryu Karate'}
+              {cat?.name || 'Yarış Kateqoriyası'}
             </span>
             <span className="text-[10px] uppercase font-bold text-gray-400 ml-2">
               {match?.roundName} ({t('kataLabel', language)})
@@ -620,7 +620,7 @@ export default function LiveScoreboard({ matchId, onBack, categories, language }
 
         <div className="text-center">
           <span className="text-[10px] uppercase font-extrabold tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-            {cat?.name || 'Şito-ryu Karate'}
+            {cat?.name || 'Yarış Kateqoriyası'}
           </span>
           <span className="text-[10px] uppercase font-bold text-gray-400 ml-2">
             {match?.roundName}

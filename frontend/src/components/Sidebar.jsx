@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, LogIn, LogOut, ChevronRight } from 'lucide-react';
+import { t } from '../i18n';
 
 export default function Sidebar({ 
   isOpen, 
@@ -7,16 +8,25 @@ export default function Sidebar({
   activeTab, 
   setActiveTab, 
   userRole, 
+  user,
   onLogout, 
-  onOpenLoginModal 
+  onOpenLoginModal,
+  selectedEventId,
+  language,
+  onGoToEvents
 }) {
   const menuItems = [
-    { id: 'dashboard', label: 'Əsas səhifə' },
-    { id: 'brackets', label: 'Püşkatmalar' },
-    { id: 'schedule', label: 'Yarış Cədvəli' },
-    { id: 'registration', label: 'Qeydiyyat' },
-    { id: 'stats', label: 'Statistika' },
-    { id: 'admin', label: 'İdarəetmə paneli' },
+    ...(selectedEventId ? [
+      { id: 'all-events', label: '◀ ' + t('eventsTitle', language) }
+    ] : []),
+    { id: 'dashboard', label: selectedEventId ? t('dashboard', language) : t('eventsTitle', language) },
+    ...(selectedEventId ? [
+      { id: 'brackets', label: t('brackets', language) },
+      { id: 'schedule', label: t('schedule', language) },
+      { id: 'registration', label: t('registration', language) },
+      { id: 'stats', label: t('stats', language) },
+      ...(userRole === 'admin' ? [{ id: 'admin', label: t('admin', language) }] : [])
+    ] : []),
     { id: 'solutions', label: 'Həllər', external: true },
     { id: 'payment', label: 'Ödəniş siyasəti', external: true },
     { id: 'platform', label: 'Platforma', external: true },
@@ -32,6 +42,11 @@ export default function Sidebar({
       alert(`"${itemId}" səhifəsi simulyasiya edilmişdir. Tam tətbiqdə xarici keçid olacaq.`);
       return;
     }
+    if (itemId === 'all-events') {
+      onGoToEvents();
+      onClose();
+      return;
+    }
     setActiveTab(itemId);
     onClose();
   }
@@ -39,6 +54,7 @@ export default function Sidebar({
   function getRoleLabel(role) {
     if (role === 'admin') return 'İdarəçi (Admin)';
     if (role === 'coach') return 'Məşqçi (Coach)';
+    if (user && user.id === 'guest') return 'Qonaq (İzləyici)';
     return 'İctimai İstifadəçi';
   }
 
@@ -79,16 +95,29 @@ export default function Sidebar({
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">İstifadəçi statusu</p>
               <p className="font-bold text-gray-800 mt-0.5">{getRoleLabel(userRole)}</p>
             </div>
-            {userRole === 'public' ? (
-              <button 
-                onClick={() => {
-                  onClose();
-                  onOpenLoginModal();
-                }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg transition-colors cursor-pointer"
-              >
-                <LogIn className="w-3.5 h-3.5" /> Daxil ol
-              </button>
+            {(!user || user.id === 'guest') ? (
+              <div className="flex gap-1.5">
+                {user?.id === 'guest' && (
+                  <button 
+                    onClick={() => {
+                      onLogout();
+                      onClose();
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg transition-colors cursor-pointer"
+                  >
+                    Çıxış
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    onClose();
+                    onOpenLoginModal();
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-lg transition-colors cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5" /> Daxil ol
+                </button>
+              </div>
             ) : (
               <button 
                 onClick={() => {

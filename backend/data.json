@@ -9,6 +9,16 @@
       "description": "Fudokan karate növləri üzrə klublararası turnir. Rəsmi WKF/Şito-ryu qaydaları tətbiq olunur. Cədvəl, püşkatma və canlı xal sistemi bu portaldadır.",
       "status": "active",
       "registrationStatus": "closed"
+    },
+    {
+      "id": "8024",
+      "title": "Baku Open Karate Kuboku 2025",
+      "date": "2025-11-12",
+      "location": "Bakı İdman Sarayı",
+      "locationUrl": "https://maps.app.goo.gl/yFwSpzGg6x5R9wXHA",
+      "description": "Beynəlxalq Fudokan karate və bütün döyüş sənətləri üzrə açıq çempionat. Yarış uğurla başa çatmışdır.",
+      "status": "archived",
+      "registrationStatus": "closed"
     }
   ],
   "categories": [

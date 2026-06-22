@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { fetchEventDetails, fetchCategories, fetchStats } from './api';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from './AuthContext';
+import { fetchEvents, fetchEventDetails, fetchCategories, fetchStats } from './api';
+import EventsList from './components/EventsList';
 import Dashboard from './components/Dashboard';
 import Brackets from './components/Brackets';
 import Schedule from './components/Schedule';
@@ -29,15 +31,14 @@ export default function App() {
   // i18n states
   const [language, setLanguage] = useState('az');
 
-  // Mock Authentication states
-  // Roles: 'public' (Guest), 'coach' (Register athletes), 'admin' (Edit tournament, score matches)
-  const [userRole, setUserRole] = useState('public');
+  // Mock Authentication states -> Replaced with AuthContext
+  const { user, login, logout } = useContext(AuthContext);
+  const userRole = user ? user.role : 'public';
 
+  const [events, setEvents] = useState([]);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // We default to the pre-seeded event 9042
-  const eventId = "9042";
 
   // Parse URL on mount for standalone OBS view
   useEffect(() => {
@@ -61,16 +62,39 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const eventDetails = await fetchEventDetails(eventId);
+      const allEvents = await fetchEvents();
+      setEvents(allEvents);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (selectedEventId) {
+      loadEventData(selectedEventId);
+    } else {
+      setEvent(null);
+      setCategories([]);
+      setStats(null);
+    }
+  }, [selectedEventId]);
+
+  async function loadEventData(id) {
+    setLoading(true);
+    setError(null);
+    try {
+      const eventDetails = await fetchEventDetails(id);
       setEvent(eventDetails);
       
-      const cats = await fetchCategories(eventId);
+      const cats = await fetchCategories(id);
       setCategories(cats);
       if (cats.length > 0) {
         setSelectedCategoryId(cats[0].id);
       }
 
-      const statistics = await fetchStats(eventId);
+      const statistics = await fetchStats(id);
       setStats(statistics);
     } catch (err) {
       setError(err.message);
@@ -80,8 +104,9 @@ export default function App() {
   }
 
   async function refreshEventData() {
+    if (!selectedEventId) return;
     try {
-      const eventDetails = await fetchEventDetails(eventId);
+      const eventDetails = await fetchEventDetails(selectedEventId);
       setEvent(eventDetails);
     } catch (err) {
       console.error("Failed to refresh event details:", err);
@@ -89,25 +114,33 @@ export default function App() {
   }
 
   async function refreshStatsAndData() {
+    if (!selectedEventId) return;
     try {
-      const statistics = await fetchStats(eventId);
+      const statistics = await fetchStats(selectedEventId);
       setStats(statistics);
     } catch (err) {
       console.error("Failed to refresh statistics:", err);
     }
   }
 
-  function handleLogin(role) {
-    setUserRole(role);
-    if (role === 'admin') {
-      setActiveTab('admin');
-    } else if (role === 'coach') {
-      setActiveTab('registration');
+  function handleLogin(token, userData) {
+    if (token && userData) {
+      login(token, userData);
+      if (userData.role === 'admin') {
+        setActiveTab('admin');
+      } else if (userData.role === 'coach') {
+        setActiveTab('registration');
+      } else {
+        setActiveTab('dashboard');
+      }
+    } else {
+      logout();
+      setActiveTab('dashboard');
     }
   }
 
   function handleLogout() {
-    setUserRole('public');
+    logout();
     setActiveTab('dashboard');
   }
 
@@ -182,6 +215,7 @@ export default function App() {
           {/* Logo */}
           <div 
             onClick={() => {
+              setSelectedEventId(null);
               setActiveTab('dashboard');
               setSelectedMatchId(null);
             }} 
@@ -203,47 +237,82 @@ export default function App() {
             
             {/* Desktop menu links (hidden on mobile, shown on lg+) */}
             <nav className="hidden lg:flex items-center gap-1">
-              {[
-                { id: 'dashboard', label: t('dashboard', language) },
-                { id: 'brackets', label: t('brackets', language) },
-                { id: 'schedule', label: t('schedule', language) },
-                { id: 'registration', label: t('registration', language) },
-                { id: 'stats', label: t('stats', language) }
-              ].map(tab => {
-                const isActive = activeTab === tab.id || (tab.id === 'brackets' && activeTab === 'scoreboard');
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      setSelectedMatchId(null);
-                    }}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      isActive 
-                        ? 'bg-blue-50 text-blue-600 shadow-xs' 
-                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100/50'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-              
-              {/* Admin direct link only if Admin */}
-              {userRole === 'admin' && (
+              {selectedEventId ? (
+                <>
+                  {[
+                    { id: 'dashboard', label: t('dashboard', language) },
+                    { id: 'brackets', label: t('brackets', language) },
+                    { id: 'schedule', label: t('schedule', language) },
+                    { id: 'registration', label: t('registration', language) },
+                    { id: 'stats', label: t('stats', language) }
+                  ].map(tab => {
+                    const isActive = activeTab === tab.id || (tab.id === 'brackets' && activeTab === 'scoreboard');
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setSelectedMatchId(null);
+                        }}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isActive 
+                            ? 'bg-blue-50 text-blue-600 shadow-xs' 
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100/50'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                  
+                  {/* Admin direct link only if Admin */}
+                  {userRole === 'admin' && (
+                    <button
+                      onClick={() => setActiveTab('admin')}
+                      className={`px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 cursor-pointer ${
+                        activeTab === 'admin' ? 'bg-red-100/70 shadow-xs' : ''
+                      }`}
+                    >
+                      {t('admin', language)}
+                    </button>
+                  )}
+                </>
+              ) : (
                 <button
-                  onClick={() => setActiveTab('admin')}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 cursor-pointer ${
-                    activeTab === 'admin' ? 'bg-red-100/70 shadow-xs' : ''
-                  }`}
+                  onClick={() => {
+                    setActiveTab('dashboard');
+                    setSelectedMatchId(null);
+                  }}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer bg-blue-50 text-blue-600 shadow-xs`}
                 >
-                  {t('admin', language)}
+                  {t('eventsTitle', language)}
                 </button>
               )}
             </nav>
 
             {/* Language Selection & Menu Triggers */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-xs font-bold text-gray-900">{user.username}</p>
+                    <p className="text-[10px] text-gray-500 uppercase">{userRole === 'admin' ? 'İdarəçi' : userRole === 'public' ? 'Qonaq' : user.clubName}</p>
+                  </div>
+                  <button 
+                    onClick={handleLogout}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                  >
+                    Çıxış
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setLoginModalOpen(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors shadow-sm cursor-pointer"
+                >
+                  Daxil ol
+                </button>
+              )}
               
               {/* i18n Dropdown (Screenshot 2 Match) */}
               <div className="relative group">
@@ -283,71 +352,81 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
-        {activeTab === 'dashboard' && (
-          <Dashboard 
-            event={event} 
-            categories={categories} 
-            stats={stats} 
-            setActiveTab={setActiveTab}
-            setSelectedCategoryId={setSelectedCategoryId}
+        {selectedEventId === null ? (
+          <EventsList 
+            events={events}
+            onSelectEvent={setSelectedEventId}
             language={language}
           />
-        )}
-        {activeTab === 'brackets' && (
-          <Brackets 
-            categories={categories} 
-            selectedCategoryId={selectedCategoryId} 
-            setSelectedCategoryId={setSelectedCategoryId}
-            onSelectMatch={handleSelectMatch}
-            setActiveTab={setActiveTab}
-            language={language}
-          />
-        )}
-        {activeTab === 'schedule' && (
-          <Schedule 
-            categories={categories} 
-            selectedCategoryId={selectedCategoryId} 
-            setSelectedCategoryId={setSelectedCategoryId}
-            onSelectMatch={handleSelectMatch}
-            setActiveTab={setActiveTab}
-            language={language}
-          />
-        )}
-        {activeTab === 'registration' && (
-          <Registration 
-            event={event}
-            categories={categories}
-            userRole={userRole}
-            onOpenLoginModal={() => setLoginModalOpen(true)}
-            onRefreshData={refreshStatsAndData}
-            language={language}
-          />
-        )}
-        {activeTab === 'scoreboard' && (
-          <LiveScoreboard 
-            matchId={selectedMatchId} 
-            categories={categories}
-            language={language}
-            onBack={() => {
-              setActiveTab('brackets');
-              setSelectedMatchId(null);
-            }} 
-          />
-        )}
-        {activeTab === 'stats' && (
-          <Stats eventId={eventId} language={language} />
-        )}
-        {activeTab === 'admin' && (
-          <Admin 
-            event={event}
-            categories={categories} 
-            selectedCategoryId={selectedCategoryId} 
-            setSelectedCategoryId={setSelectedCategoryId}
-            eventId={eventId}
-            onRefreshData={refreshStatsAndData}
-            onRefreshEvent={refreshEventData}
-            language={language}
-          />
+        ) : (
+          <>
+            {activeTab === 'dashboard' && (
+              <Dashboard 
+                event={event} 
+                categories={categories} 
+                stats={stats} 
+                setActiveTab={setActiveTab}
+                setSelectedCategoryId={setSelectedCategoryId}
+                language={language}
+              />
+            )}
+            {activeTab === 'brackets' && (
+              <Brackets 
+                categories={categories} 
+                selectedCategoryId={selectedCategoryId} 
+                setSelectedCategoryId={setSelectedCategoryId}
+                onSelectMatch={handleSelectMatch}
+                setActiveTab={setActiveTab}
+                language={language}
+              />
+            )}
+            {activeTab === 'schedule' && (
+              <Schedule 
+                categories={categories} 
+                selectedCategoryId={selectedCategoryId} 
+                setSelectedCategoryId={setSelectedCategoryId}
+                onSelectMatch={handleSelectMatch}
+                setActiveTab={setActiveTab}
+                language={language}
+              />
+            )}
+            {activeTab === 'registration' && (
+              <Registration 
+                event={event}
+                categories={categories}
+                userRole={userRole}
+                onOpenLoginModal={() => setLoginModalOpen(true)}
+                onRefreshData={refreshStatsAndData}
+                language={language}
+              />
+            )}
+            {activeTab === 'scoreboard' && (
+              <LiveScoreboard 
+                matchId={selectedMatchId} 
+                categories={categories}
+                language={language}
+                onBack={() => {
+                  setActiveTab('brackets');
+                  setSelectedMatchId(null);
+                }} 
+              />
+            )}
+            {activeTab === 'stats' && (
+              <Stats eventId={selectedEventId} language={language} />
+            )}
+            {activeTab === 'admin' && (
+              <Admin 
+                event={event}
+                categories={categories} 
+                selectedCategoryId={selectedCategoryId} 
+                setSelectedCategoryId={setSelectedCategoryId}
+                eventId={selectedEventId}
+                onRefreshData={refreshStatsAndData}
+                onRefreshEvent={refreshEventData}
+                language={language}
+              />
+            )}
+          </>
         )}
       </main>
 
@@ -368,8 +447,16 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         userRole={userRole}
+        user={user}
         onLogout={handleLogout}
         onOpenLoginModal={() => setLoginModalOpen(true)}
+        selectedEventId={selectedEventId}
+        language={language}
+        onGoToEvents={() => {
+          setSelectedEventId(null);
+          setActiveTab('dashboard');
+          setSelectedMatchId(null);
+        }}
       />
 
       {/* Login Authentication Modal */}

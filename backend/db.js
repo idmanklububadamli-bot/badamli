@@ -1,198 +1,301 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_FILE = path.join(__dirname, 'data.json');
+dotenv.config();
 
-// Initial seed data
-const initialData = {
-  events: [
-    {
-      id: "9042",
-      title: "Fudokan karate üzrə turnir (2-ci liqa)",
-      date: "2026-06-25",
-      location: "İsmayıllı Olimpiya İdman Kompleksi",
-      locationUrl: "https://www.google.com/maps/search/?api=1&query=İsmayıllı+Olimpiya+İdman+Kompleksi",
-      description: "Fudokan karate növləri üzrə klublararası turnir. Rəsmi WKF/Şito-ryu qaydaları tətbiq olunur. Cədvəl, püşkatma və canlı xal sistemi bu portaldadır.",
-      status: "active",
-      registrationStatus: "closed"
-    }
-  ],
-  categories: [
-    { id: "cat-1", eventId: "9042", name: "U8, -25kg, Oğlanlar (Şito-ryu)", gender: "Oğlan", age: "U8", weight: "-25kg", type: "kumite" },
-    { id: "cat-2", eventId: "9042", name: "U10, -30kg, Oğlanlar (Şito-ryu)", gender: "Oğlan", age: "U10", weight: "-30kg", type: "kumite" },
-    { id: "cat-3", eventId: "9042", name: "U12, -35kg, Qızlar (Şito-ryu)", gender: "Qız", age: "U12", weight: "-35kg", type: "kumite" },
-    { id: "cat-4", eventId: "9042", name: "U14, -45kg, Oğlanlar (Şito-ryu)", gender: "Oğlan", age: "U14", weight: "-45kg", type: "kumite" },
-    { id: "cat-5", eventId: "9042", name: "U12, Kata, Qızlar (Şito-ryu)", gender: "Qız", age: "U12", weight: "Kata", type: "kata" }
-  ],
-  athletes: [
-    // Seeding athletes from the original page
-    { id: "ath-1", name: "EMİL CAHANGİROV", club: "Baku Karate Club", country: "AZE", categoryId: "cat-1" },
-    { id: "ath-2", name: "MÜBARİZ HÜSEYNZADƏ", club: "Zirvə Karate Klub", country: "AZE", categoryId: "cat-1" },
-    { id: "ath-3", name: "UCAL İSMAYILOV", club: "Gənclik İK", country: "AZE", categoryId: "cat-1" },
-    { id: "ath-4", name: "MEHDİ ƏLİYEV", club: "Arpaçay İK", country: "AZE", categoryId: "cat-1" },
-    { id: "ath-5", name: "ÖMƏR AĞALAROV", club: "Baku Karate Club", country: "AZE", categoryId: "cat-1" },
-    { id: "ath-6", name: "İBRAHİM AĞAZADƏ", club: "Qəbələ İK", country: "AZE", categoryId: "cat-1" },
-    { id: "ath-7", name: "ARSLAN DADAŞOV", club: "Arpaçay İK", country: "AZE", categoryId: "cat-1" },
-    { id: "ath-8", name: "SƏİD MƏŞƏDİYEV", club: "Zirvə Karate Klub", country: "AZE", categoryId: "cat-1" },
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // Category 2 athletes
-    { id: "ath-9", name: "ARZU BABAYEV", club: "Şəki İK", country: "AZE", categoryId: "cat-2" },
-    { id: "ath-10", name: "RAMAL BABAYEV", club: "Baku Karate Club", country: "AZE", categoryId: "cat-2" },
-    { id: "ath-11", name: "RAUL BABAZADƏ", club: "Qəbələ İK", country: "AZE", categoryId: "cat-2" },
-    { id: "ath-12", name: "TUNCAY İBRAHİMOV", club: "Gənclik İK", country: "AZE", categoryId: "cat-2" },
-    { id: "ath-13", name: "OMAR BABAYEV", club: "Baku Karate Club", country: "AZE", categoryId: "cat-2" },
-    { id: "ath-14", name: "YUSİF KƏNİŞLİ", club: "Zirvə Karate Klub", country: "AZE", categoryId: "cat-2" },
+if (!supabaseUrl || !supabaseKey) {
+  console.error("XƏTƏ: SUPABASE_URL və ya SUPABASE_SERVICE_ROLE_KEY .env faylında tapılmadı!");
+}
 
-    // Category 3 (girls)
-    { id: "ath-15", name: "NURAY HUMBƏTOVA", club: "Baku Karate Club", country: "AZE", categoryId: "cat-3" },
-    { id: "ath-16", name: "XƏDİCƏ ORUCOVA", club: "Arpaçay İK", country: "AZE", categoryId: "cat-3" },
-    { id: "ath-17", name: "SEVDA ƏLƏKBƏRLİ", club: "Qəbələ İK", country: "AZE", categoryId: "cat-3" },
-    { id: "ath-18", name: "NİHAD MURADZADƏ", club: "Zirvə Karate Klub", country: "AZE", categoryId: "cat-3" },
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false }
+});
 
-    // Category 5 (Kata) - Teammates from Baku Karate and Arpaçay
-    { id: "ath-19", name: "AYLA ƏLİYEVA", club: "Baku Karate Club", country: "AZE", categoryId: "cat-5" },
-    { id: "ath-20", name: "DƏRYA MƏMMƏDOVA", club: "Arpaçay İK", country: "AZE", categoryId: "cat-5" },
-    { id: "ath-21", name: "ZƏHRƏ HƏSƏNOVA", club: "Baku Karate Club", country: "AZE", categoryId: "cat-5" },
-    { id: "ath-22", name: "LEYLA İSMAYILOVA", club: "Arpaçay İK", country: "AZE", categoryId: "cat-5" }
-  ],
-  matches: []
-};
+// Helper functions to map DB snake_case to JS camelCase
+function mapEventFromDb(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    title: row.title,
+    date: row.date,
+    location: row.location,
+    locationUrl: row.location_url,
+    description: row.description,
+    status: row.status,
+    registrationStatus: row.registration_status
+  };
+}
+
+function mapCategoryFromDb(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    eventId: row.event_id,
+    name: row.name,
+    gender: row.gender,
+    age: row.age,
+    weight: row.weight,
+    type: row.type
+  };
+}
+
+function mapAthleteFromDb(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    club: row.club,
+    country: row.country,
+    categoryId: row.category_id,
+    coachId: row.coach_id
+  };
+}
+
+function mapMatchFromDb(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    eventId: row.event_id,
+    categoryId: row.category_id,
+    roundName: row.round_name,
+    roundIndex: row.round_index,
+    matchIndex: row.match_index,
+    athleteAkaId: row.athlete_aka_id,
+    athleteAoId: row.athlete_ao_id,
+    scoreAka: Number(row.score_aka || 0),
+    scoreAo: Number(row.score_ao || 0),
+    kataScoresAka: row.kata_scores_aka || [7.5, 7.5, 7.5, 7.5, 7.5],
+    kataScoresAo: row.kata_scores_ao || [7.5, 7.5, 7.5, 7.5, 7.5],
+    warningsAka: row.warnings_aka || [],
+    warningsAo: row.warnings_ao || [],
+    senshu: row.senshu,
+    winnerId: row.winner_id,
+    status: row.status,
+    nextMatchId: row.next_match_id,
+    nextMatchPosition: row.next_match_position
+  };
+}
 
 class Database {
-  constructor() {
-    this.data = initialData;
-    this.load();
+  async getEvents() {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: true });
+    if (error) throw error;
+    return data.map(mapEventFromDb);
   }
 
-  load() {
-    try {
-      if (fs.existsSync(DB_FILE)) {
-        const fileContent = fs.readFileSync(DB_FILE, 'utf8');
-        this.data = JSON.parse(fileContent);
-      } else {
-        this.save();
+  async getEventById(id) {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? mapEventFromDb(data) : null;
+  }
+
+  async updateEvent(id, updates) {
+    const dbUpdates = {};
+    if (updates.title !== undefined) dbUpdates.title = updates.title;
+    if (updates.date !== undefined) dbUpdates.date = updates.date;
+    if (updates.location !== undefined) dbUpdates.location = updates.location;
+    if (updates.locationUrl !== undefined) dbUpdates.location_url = updates.locationUrl;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.status !== undefined) dbUpdates.status = updates.status;
+    if (updates.registrationStatus !== undefined) dbUpdates.registration_status = updates.registrationStatus;
+
+    const { data, error } = await supabase
+      .from('events')
+      .update(dbUpdates)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return mapEventFromDb(data);
+  }
+
+  async getCategories(eventId) {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('event_id', eventId);
+    if (error) throw error;
+    return data.map(mapCategoryFromDb);
+  }
+
+  async getCategoryById(id) {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? mapCategoryFromDb(data) : null;
+  }
+
+  async getAthletes(eventId) {
+    const categories = await this.getCategories(eventId);
+    const catIds = categories.map(c => c.id);
+    if (catIds.length === 0) return [];
+    
+    const { data, error } = await supabase
+      .from('athletes')
+      .select('*')
+      .in('category_id', catIds);
+    if (error) throw error;
+    return data.map(mapAthleteFromDb);
+  }
+
+  async getAthletesByCategory(categoryId) {
+    const { data, error } = await supabase
+      .from('athletes')
+      .select('*')
+      .eq('category_id', categoryId);
+    if (error) throw error;
+    return data.map(mapAthleteFromDb);
+  }
+
+  async addAthlete(athlete) {
+    const id = `ath-${Date.now()}`;
+    
+    // If coachId is provided, get the coach's club name
+    let clubName = athlete.club;
+    if (athlete.coachId) {
+      const coach = await this.getUserById(athlete.coachId);
+      if (coach && coach.club_name) {
+        clubName = coach.club_name;
       }
-    } catch (error) {
-      console.error("Failed to load JSON DB, using in-memory state:", error);
-    }
-  }
-
-  save() {
-    try {
-      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf8');
-    } catch (error) {
-      console.error("Failed to save JSON DB:", error);
-    }
-  }
-
-  getEvents() {
-    return this.data.events;
-  }
-
-  getEventById(id) {
-    return this.data.events.find(e => e.id === id);
-  }
-
-  updateEvent(id, updates) {
-    const eventIndex = this.data.events.findIndex(e => e.id === id);
-    if (eventIndex === -1) return null;
-    this.data.events[eventIndex] = { ...this.data.events[eventIndex], ...updates };
-    this.save();
-    return this.data.events[eventIndex];
-  }
-
-  getCategories(eventId) {
-    return this.data.categories.filter(c => c.eventId === eventId);
-  }
-
-  getCategoryById(id) {
-    return this.data.categories.find(c => c.id === id);
-  }
-
-  getAthletes(eventId) {
-    const categories = this.getCategories(eventId);
-    const catIds = new Set(categories.map(c => c.id));
-    return this.data.athletes.filter(a => catIds.has(a.categoryId));
-  }
-
-  getAthletesByCategory(categoryId) {
-    return this.data.athletes.filter(a => a.categoryId === categoryId);
-  }
-
-  addAthlete(athlete) {
-    const newAthlete = {
-      id: `ath-${Date.now()}`,
-      ...athlete
-    };
-    this.data.athletes.push(newAthlete);
-    this.save();
-    return newAthlete;
-  }
-
-  getMatches(categoryId) {
-    return this.data.matches.filter(m => m.categoryId === categoryId);
-  }
-
-  getMatchById(id) {
-    return this.data.matches.find(m => m.id === id);
-  }
-
-  updateMatch(matchId, updates) {
-    const matchIndex = this.data.matches.findIndex(m => m.id === matchId);
-    if (matchIndex === -1) return null;
-
-    const match = { ...this.data.matches[matchIndex], ...updates };
-    this.data.matches[matchIndex] = match;
-
-    // If match is completed, check if we need to advance the winner
-    if (updates.status === 'completed' && match.winnerId) {
-      this.advanceWinner(match);
     }
 
-    this.save();
-    return match;
+    const { data, error } = await supabase
+      .from('athletes')
+      .insert({
+        id,
+        name: athlete.name,
+        club: clubName,
+        country: athlete.country || 'AZE',
+        category_id: athlete.categoryId,
+        coach_id: athlete.coachId || null
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return mapAthleteFromDb(data);
   }
 
-  advanceWinner(completedMatch) {
+  async getMatches(categoryId) {
+    const { data, error } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('category_id', categoryId)
+      .order('round_index', { ascending: true })
+      .order('match_index', { ascending: true });
+    if (error) throw error;
+    return data.map(mapMatchFromDb);
+  }
+
+  async getMatchById(id) {
+    const { data, error } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? mapMatchFromDb(data) : null;
+  }
+
+  async updateMatch(matchId, updates) {
+    const dbUpdates = {};
+    if (updates.scoreAka !== undefined) dbUpdates.score_aka = updates.scoreAka;
+    if (updates.scoreAo !== undefined) dbUpdates.score_ao = updates.scoreAo;
+    if (updates.warningsAka !== undefined) dbUpdates.warnings_aka = updates.warningsAka;
+    if (updates.warningsAo !== undefined) dbUpdates.warnings_ao = updates.warningsAo;
+    if (updates.senshu !== undefined) dbUpdates.senshu = updates.senshu;
+    if (updates.winnerId !== undefined) dbUpdates.winner_id = updates.winnerId;
+    if (updates.status !== undefined) dbUpdates.status = updates.status;
+    if (updates.kataScoresAka !== undefined) dbUpdates.kata_scores_aka = updates.kataScoresAka;
+    if (updates.kataScoresAo !== undefined) dbUpdates.kata_scores_ao = updates.kataScoresAo;
+
+    const { data, error } = await supabase
+      .from('matches')
+      .update(dbUpdates)
+      .eq('id', matchId)
+      .select()
+      .single();
+    if (error) throw error;
+
+    const updatedMatch = mapMatchFromDb(data);
+
+    if (updates.status === 'completed' && updatedMatch.winnerId) {
+      await this.advanceWinner(updatedMatch);
+    }
+
+    return await this.getMatchById(matchId);
+  }
+
+  async advanceWinner(completedMatch) {
     if (!completedMatch.nextMatchId) return;
 
-    const nextMatchIndex = this.data.matches.findIndex(m => m.id === completedMatch.nextMatchId);
-    if (nextMatchIndex === -1) return;
+    const nextMatch = await this.getMatchById(completedMatch.nextMatchId);
+    if (!nextMatch) return;
 
-    const nextMatch = { ...this.data.matches[nextMatchIndex] };
     const winnerId = completedMatch.winnerId;
+    const dbUpdates = {};
 
     if (completedMatch.nextMatchPosition === 'Aka') {
+      dbUpdates.athlete_aka_id = winnerId;
       nextMatch.athleteAkaId = winnerId;
     } else {
+      dbUpdates.athlete_ao_id = winnerId;
       nextMatch.athleteAoId = winnerId;
     }
 
     // If the next match has a bye in the other slot, complete it automatically!
-    if (nextMatch.athleteAkaId === 'BYE' || nextMatch.athleteAoId === 'BYE') {
-      nextMatch.winnerId = nextMatch.athleteAkaId === 'BYE' ? nextMatch.athleteAoId : nextMatch.athleteAkaId;
+    const partnerId = completedMatch.nextMatchPosition === 'Aka' ? nextMatch.athleteAoId : nextMatch.athleteAkaId;
+    if (winnerId === 'BYE' || partnerId === 'BYE') {
+      dbUpdates.winner_id = winnerId === 'BYE' ? partnerId : winnerId;
+      dbUpdates.status = 'completed';
+      dbUpdates.score_aka = 0;
+      dbUpdates.score_ao = 0;
+
+      nextMatch.winnerId = dbUpdates.winner_id;
       nextMatch.status = 'completed';
-      nextMatch.scoreAka = 0;
-      nextMatch.scoreAo = 0;
     }
 
-    this.data.matches[nextMatchIndex] = nextMatch;
+    const { data, error } = await supabase
+      .from('matches')
+      .update(dbUpdates)
+      .eq('id', nextMatch.id)
+      .select()
+      .single();
 
-    // Recurse in case the next match gets completed instantly (byes)
-    if (nextMatch.status === 'completed') {
-      this.advanceWinner(nextMatch);
+    if (error) {
+      console.error("Failed to advance winner:", error);
+      return;
+    }
+
+    const updatedNextMatch = mapMatchFromDb(data);
+
+    if (updatedNextMatch.status === 'completed') {
+      await this.advanceWinner(updatedNextMatch);
     }
   }
 
-  generateBrackets(eventId, categoryId) {
+  async generateBrackets(eventId, categoryId) {
     // Clear existing matches for this category
-    this.data.matches = this.data.matches.filter(m => m.categoryId !== categoryId);
+    const { error: deleteError } = await supabase
+      .from('matches')
+      .delete()
+      .eq('category_id', categoryId);
+    if (deleteError) throw deleteError;
 
-    const athletes = this.getAthletesByCategory(categoryId);
+    const athletes = await this.getAthletesByCategory(categoryId);
     if (athletes.length < 2) {
-      this.save();
       return [];
     }
 
@@ -208,7 +311,7 @@ class Database {
 
     // Initialize matches for all rounds
     for (let r = 0; r < numRounds; r++) {
-      const roundSize = bracketSize / Math.pow(2, r + 1); // e.g. N=8: r=0 -> 4, r=1 -> 2, r=2 -> 1
+      const roundSize = bracketSize / Math.pow(2, r + 1);
       const roundName = roundSize === 1 ? "Final" : roundSize === 2 ? "Yarımfinal" : `1/${roundSize}`;
       
       for (let i = 0; i < roundSize; i++) {
@@ -224,40 +327,37 @@ class Database {
 
         allMatches.push({
           id: matchId,
-          eventId,
-          categoryId,
-          roundName,
-          roundIndex: r,
-          matchIndex: i,
-          athleteAkaId: null,
-          athleteAoId: null,
-          scoreAka: 0,
-          scoreAo: 0,
-          kataScoresAka: [7.5, 7.5, 7.5, 7.5, 7.5], // Default starting score for Kata
-          kataScoresAo: [7.5, 7.5, 7.5, 7.5, 7.5],
-          warningsAka: [],
-          warningsAo: [],
+          event_id: eventId,
+          category_id: categoryId,
+          round_name: roundName,
+          round_index: r,
+          match_index: i,
+          athlete_aka_id: null,
+          athlete_ao_id: null,
+          score_aka: 0,
+          score_ao: 0,
+          kata_scores_aka: [7.5, 7.5, 7.5, 7.5, 7.5],
+          kata_scores_ao: [7.5, 7.5, 7.5, 7.5, 7.5],
+          warnings_aka: [],
+          warnings_ao: [],
           senshu: null,
-          winnerId: null,
+          winner_id: null,
           status: "scheduled",
-          nextMatchId,
-          nextMatchPosition
+          next_match_id: nextMatchId,
+          next_match_position: nextMatchPosition
         });
       }
     }
 
     // Smart Seeding: Separate club members (teammate separation)
-    // Group athletes by club
     const clubGroups = {};
     athletes.forEach(a => {
       if (!clubGroups[a.club]) clubGroups[a.club] = [];
       clubGroups[a.club].push(a);
     });
 
-    // Sort clubs by size descending
     const sortedClubs = Object.keys(clubGroups).sort((a, b) => clubGroups[b].length - clubGroups[a].length);
 
-    // Interweave club athletes sequentially to split teammates
     const seedList = [];
     let added = true;
     const clubIndices = {};
@@ -275,8 +375,6 @@ class Database {
       }
     }
 
-    // Seed athletes into the first round (which is roundIndex === 0)
-    // To handle byes, we pair athletes. If bracketSize > count, some positions get a 'BYE'
     const pairedAthletes = [];
     for (let i = 0; i < bracketSize; i += 2) {
       const aka = seedList[i] ? seedList[i].id : 'BYE';
@@ -284,50 +382,76 @@ class Database {
       pairedAthletes.push({ aka, ao });
     }
 
-    const firstRoundMatches = allMatches.filter(m => m.roundIndex === 0);
+    const firstRoundMatches = allMatches.filter(m => m.round_index === 0);
     const firstRoundSize = firstRoundMatches.length;
 
     for (let i = 0; i < firstRoundSize; i++) {
       const pair = pairedAthletes[i] || { aka: 'BYE', ao: 'BYE' };
-      firstRoundMatches[i].athleteAkaId = pair.aka;
-      firstRoundMatches[i].athleteAoId = pair.ao;
+      firstRoundMatches[i].athlete_aka_id = pair.aka;
+      firstRoundMatches[i].athlete_ao_id = pair.ao;
 
-      // Handle byes immediately
       if (pair.aka === 'BYE' || pair.ao === 'BYE') {
         if (pair.aka === 'BYE' && pair.ao === 'BYE') {
-          firstRoundMatches[i].winnerId = 'BYE';
+          firstRoundMatches[i].winner_id = 'BYE';
           firstRoundMatches[i].status = 'completed';
         } else {
-          firstRoundMatches[i].winnerId = pair.aka === 'BYE' ? pair.ao : pair.aka;
+          firstRoundMatches[i].winner_id = pair.aka === 'BYE' ? pair.ao : pair.aka;
           firstRoundMatches[i].status = 'completed';
         }
       }
     }
 
-    this.data.matches.push(...allMatches);
+    const { error: insertError } = await supabase
+      .from('matches')
+      .insert(allMatches);
+    if (insertError) throw insertError;
 
     // Propagate byes forward
-    const completedMatches = allMatches.filter(m => m.status === 'completed');
+    const completedMatches = allMatches.filter(m => m.status === 'completed').map(mapMatchFromDb);
     for (const m of completedMatches) {
-      this.advanceWinner(m);
+      await this.advanceWinner(m);
     }
-
-    this.save();
-    return this.getMatches(categoryId);
+    
+    return await this.getMatches(categoryId);
   }
 
-  // Pre-generate brackets for seeded data on load if empty
-  initializeDefaultBrackets() {
-    for (const cat of this.data.categories) {
-      const matches = this.getMatches(cat.id);
-      if (matches.length === 0) {
-        this.generateBrackets("9042", cat.id);
-      }
-    }
+  // Auth & User Management Methods
+  async createUser(user) {
+    const { data, error } = await supabase
+      .from('users')
+      .insert({
+        id: crypto.randomUUID(),
+        username: user.username,
+        password_hash: user.password_hash,
+        role: user.role || 'coach',
+        club_name: user.club_name || null
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   }
-}
+
+  async getUserByUsername(username) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async getUserById(id) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+};
 
 const db = new Database();
-db.initializeDefaultBrackets();
-
 export default db;
