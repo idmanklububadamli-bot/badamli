@@ -10,6 +10,7 @@ import Stats from './components/Stats';
 import Admin from './components/Admin';
 import Registration from './components/Registration';
 import Sidebar from './components/Sidebar';
+import Platform from './components/Platform';
 import LoginModal from './components/LoginModal';
 import SpectatorBoard from './components/SpectatorBoard';
 import { Shield, Menu, Globe } from 'lucide-react';
@@ -352,7 +353,9 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
-        {selectedEventId === null ? (
+        {activeTab === 'platform' ? (
+          <Platform language={language} />
+        ) : selectedEventId === null ? (
           <EventsList 
             events={events}
             onSelectEvent={setSelectedEventId}

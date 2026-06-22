@@ -29,7 +29,7 @@ export default function Sidebar({
     ] : []),
     { id: 'solutions', label: 'Həllər', external: true },
     { id: 'payment', label: 'Ödəniş siyasəti', external: true },
-    { id: 'platform', label: 'Platforma', external: true },
+    { id: 'platform', label: 'Platforma' },
     { id: 'about', label: 'Haqqımızda', external: true },
     { id: 'team', label: 'Badamlı Online komandası', external: true },
     { id: 'contact', label: 'Əlaqə', external: true },
