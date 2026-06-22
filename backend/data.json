@@ -2,11 +2,11 @@
   "events": [
     {
       "id": "9042",
-      "title": "Fudokan karate üzrə turnir (2-ci liqa)",
+      "title": "Badamlı karate üzrə turnir (2-ci liqa)",
       "date": "2026-06-25",
       "location": "İsmayıllı Olimpiya İdman Kompleksi",
       "locationUrl": "https://www.google.com/maps/place/%D0%A1%D0%BF%D0%BE%D1%80%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B9+%D0%BB%D0%B8%D1%86%D0%B5%D0%B9+V%C9%99t%C9%99n/@40.428243,49.8521594,18z/data=!4m14!1m7!3m6!1s0x403089003025ba6f:0xc09e0fca90579543!2z0KHQv9C-0YDRgtC40LLQvdGL0Lkg0LvQuNGG0LXQuSBWyZl0yZlu!8m2!3d40.4282042!4d49.8534522!16s%2Fg%2F11l_0jq9m8!3m5!1s0x403089003025ba6f:0xc09e0fca90579543!8m2!3d40.4282042!4d49.8534522!16s%2Fg%2F11l_0jq9m8?entry=ttu&g_ep=EgoyMDI2MDYxNi4wIKXMDSoASAFQAw%3D%3D",
-      "description": "Fudokan karate növləri üzrə klublararası turnir. Rəsmi WKF/Şito-ryu qaydaları tətbiq olunur. Cədvəl, püşkatma və canlı xal sistemi bu portaldadır.",
+      "description": "Badamlı karate növləri üzrə klublararası turnir. Rəsmi WKF/Şito-ryu qaydaları tətbiq olunur. Cədvəl, püşkatma və canlı xal sistemi bu portaldadır.",
       "status": "active",
       "registrationStatus": "closed"
     },
@@ -16,7 +16,7 @@
       "date": "2025-11-12",
       "location": "Bakı İdman Sarayı",
       "locationUrl": "https://maps.app.goo.gl/yFwSpzGg6x5R9wXHA",
-      "description": "Beynəlxalq Fudokan karate və bütün döyüş sənətləri üzrə açıq çempionat. Yarış uğurla başa çatmışdır.",
+      "description": "Beynəlxalq Badamlı karate və bütün döyüş sənətləri üzrə açıq çempionat. Yarış uğurla başa çatmışdır.",
       "status": "archived",
       "registrationStatus": "closed"
     }
