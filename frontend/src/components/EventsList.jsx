@@ -189,6 +189,7 @@ export default function EventsList({ events, onSelectEvent, language, userRole, 
                 <input
                   type="date"
                   required
+                  min={new Date().toISOString().split('T')[0]}
                   value={newEvent.date}
                   onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
