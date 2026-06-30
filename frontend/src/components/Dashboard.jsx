@@ -31,14 +31,18 @@ export default function Dashboard({ event, categories, stats, setActiveTab, setS
             </div>
             <div className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4 text-gray-400" />
-              <a 
-                href={event.locationUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-blue-600 hover:underline transition-colors"
-              >
-                {event.location}
-              </a>
+              {event.locationUrl ? (
+                <a 
+                  href={event.locationUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-blue-600 hover:underline transition-colors"
+                >
+                  {event.location}
+                </a>
+              ) : (
+                <span>{event.location}</span>
+              )}
             </div>
           </div>
         </div>

@@ -196,14 +196,47 @@ export default function EventsList({ events, onSelectEvent, language, userRole, 
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Məkan</label>
-                <input
-                  type="text"
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Məkan Seçimi</label>
+                <select
                   value={newEvent.location}
-                  onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
-                  placeholder="Məs. Bakı İdman Sarayı"
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
-                />
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    let url = '';
+                    if (val === 'Bakı İdman Sarayı') url = 'https://maps.app.goo.gl/fQp5eYxKQ85fXFzx7';
+                    else if (val === 'Gəncə İdman Sarayı') url = 'https://maps.app.goo.gl/B9C1V1R2KxL8v9nF6';
+                    else if (val === 'Sumqayıt Olimpiya İdman Kompleksi') url = 'https://maps.app.goo.gl/T4Yn8y3w9o5W2P7r8';
+                    else if (val === 'Sərhədçi İdman Olimpiya Mərkəzi') url = 'https://maps.app.goo.gl/8n9xL7y9w3W2P7r8';
+                    
+                    setNewEvent({...newEvent, location: val, locationUrl: url});
+                  }}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50 mb-2"
+                >
+                  <option value="">-- Məkan Seçin --</option>
+                  <option value="Bakı İdman Sarayı">Bakı İdman Sarayı</option>
+                  <option value="Gəncə İdman Sarayı">Gəncə İdman Sarayı</option>
+                  <option value="Sumqayıt Olimpiya İdman Kompleksi">Sumqayıt Olimpiya İdman Kompleksi</option>
+                  <option value="Sərhədçi İdman Olimpiya Mərkəzi">Sərhədçi İdman Olimpiya Mərkəzi</option>
+                  <option value="Digər">Digər (Əllə daxil et)</option>
+                </select>
+
+                {(!newEvent.location || newEvent.location === 'Digər' || !['Bakı İdman Sarayı', 'Gəncə İdman Sarayı', 'Sumqayıt Olimpiya İdman Kompleksi', 'Sərhədçi İdman Olimpiya Mərkəzi'].includes(newEvent.location)) && (
+                  <div className="space-y-2 mt-2">
+                    <input
+                      type="text"
+                      value={newEvent.location === 'Digər' ? '' : newEvent.location}
+                      onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+                      placeholder="Məkanın adını yazın..."
+                      className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
+                    />
+                    <input
+                      type="url"
+                      value={newEvent.locationUrl || ''}
+                      onChange={(e) => setNewEvent({...newEvent, locationUrl: e.target.value})}
+                      placeholder="Xəritə linki (Google Maps URL) - İxtiyari"
+                      className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
