@@ -50,7 +50,24 @@ function mapAthleteFromDb(row) {
     club: row.club,
     country: row.country,
     categoryId: row.category_id,
-    coachId: row.coach_id
+    coachId: row.coach_id,
+    checkedIn: row.checked_in,
+    checkedInAt: row.checked_in_at,
+    rosterAthleteId: row.roster_athlete_id
+  };
+}
+
+function mapRosterAthleteFromDb(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    birthDate: row.birth_date,
+    gender: row.gender,
+    club: row.club,
+    country: row.country,
+    coachId: row.coach_id,
+    createdAt: row.created_at
   };
 }
 
@@ -75,7 +92,9 @@ function mapMatchFromDb(row) {
     winnerId: row.winner_id,
     status: row.status,
     nextMatchId: row.next_match_id,
-    nextMatchPosition: row.next_match_position
+    nextMatchPosition: row.next_match_position,
+    tatamiNumber: row.tatami_number,
+    estimatedTime: row.estimated_time
   };
 }
 
@@ -180,7 +199,8 @@ class Database {
         club: clubName,
         country: athlete.country || 'AZE',
         category_id: athlete.categoryId,
-        coach_id: athlete.coachId || null
+        coach_id: athlete.coachId || null,
+        roster_athlete_id: athlete.rosterAthleteId || null
       })
       .select()
       .single();
@@ -325,6 +345,14 @@ class Database {
           nextMatchPosition = i % 2 === 0 ? "Aka" : "Ao";
         }
 
+        // Calculate a simple estimated time: 5 mins per match
+        const baseTime = new Date();
+        // matches across all rounds are just spaced out by 5 mins incrementally. 
+        // A real robust system would schedule round by round. 
+        const matchDurationMs = 5 * 60000; 
+        const totalIndex = r * roundSize + i;
+        const estimatedTime = new Date(baseTime.getTime() + (totalIndex * matchDurationMs)).toISOString();
+
         allMatches.push({
           id: matchId,
           event_id: eventId,
@@ -344,7 +372,9 @@ class Database {
           winner_id: null,
           status: "scheduled",
           next_match_id: nextMatchId,
-          next_match_position: nextMatchPosition
+          next_match_position: nextMatchPosition,
+          tatami_number: 1,
+          estimated_time: estimatedTime
         });
       }
     }
@@ -413,6 +443,80 @@ class Database {
     }
     
     return await this.getMatches(categoryId);
+  }
+
+  // Roster Athletes Methods
+  async getRosterAthletes(coachId) {
+    const { data, error } = await supabase
+      .from('roster_athletes')
+      .select('*')
+      .eq('coach_id', coachId)
+      .order('name', { ascending: true });
+    if (error) throw error;
+    return data.map(mapRosterAthleteFromDb);
+  }
+
+  async addRosterAthlete(athlete) {
+    const id = `ra-${Date.now()}`;
+    const { data, error } = await supabase
+      .from('roster_athletes')
+      .insert({
+        id,
+        name: athlete.name,
+        birth_date: athlete.birthDate,
+        gender: athlete.gender,
+        club: athlete.club,
+        country: athlete.country || 'AZE',
+        coach_id: athlete.coachId
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return mapRosterAthleteFromDb(data);
+  }
+
+  async updateRosterAthlete(id, coachId, updates) {
+    const dbUpdates = {};
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.birthDate !== undefined) dbUpdates.birth_date = updates.birthDate;
+    if (updates.gender !== undefined) dbUpdates.gender = updates.gender;
+    if (updates.club !== undefined) dbUpdates.club = updates.club;
+    if (updates.country !== undefined) dbUpdates.country = updates.country;
+
+    const { data, error } = await supabase
+      .from('roster_athletes')
+      .update(dbUpdates)
+      .eq('id', id)
+      .eq('coach_id', coachId)
+      .select()
+      .single();
+    if (error) throw error;
+    return mapRosterAthleteFromDb(data);
+  }
+
+  async deleteRosterAthlete(id, coachId) {
+    const { error } = await supabase
+      .from('roster_athletes')
+      .delete()
+      .eq('id', id)
+      .eq('coach_id', coachId);
+    if (error) throw error;
+    return true;
+  }
+
+  // Athlete Check-in
+  async checkInAthlete(athleteId, checkedIn) {
+    const { data, error } = await supabase
+      .from('athletes')
+      .update({
+        checked_in: checkedIn,
+        checked_in_at: checkedIn ? new Date().toISOString() : null
+      })
+      .eq('id', athleteId)
+      .select()
+      .single();
+    if (error) throw error;
+    return mapAthleteFromDb(data);
   }
 
   // Auth & User Management Methods

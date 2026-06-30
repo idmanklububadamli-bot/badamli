@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { registerAthlete, fetchAthletes } from '../api';
-import { UserPlus, Search, LogIn, CheckCircle, Apple, Play } from 'lucide-react';
+import { registerAthlete, fetchAthletes, fetchRoster } from '../api';
+import { UserPlus, Search, LogIn, CheckCircle, Apple, Play, Users } from 'lucide-react';
 
 export default function Registration({ 
   event, 
@@ -19,12 +19,28 @@ export default function Registration({
   const [allAthletes, setAllAthletes] = useState([]);
   const [listLoading, setListLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Coach's roster
+  const [roster, setRoster] = useState([]);
+  const [selectedRosterId, setSelectedRosterId] = useState('');
 
   const isClosed = event?.registrationStatus === 'closed';
 
   useEffect(() => {
     loadAllRegisteredAthletes();
-  }, [categories]);
+    if (userRole === 'coach') {
+      loadCoachRoster();
+    }
+  }, [categories, userRole]);
+
+  async function loadCoachRoster() {
+    try {
+      const data = await fetchRoster();
+      setRoster(data);
+    } catch (err) {
+      console.error('Failed to load roster:', err);
+    }
+  }
 
   async function loadAllRegisteredAthletes() {
     setListLoading(true);
@@ -51,10 +67,12 @@ export default function Registration({
       await registerAthlete(selectedCatId, {
         name: name.trim().toUpperCase(),
         club: club.trim(),
-        country: country.trim().toUpperCase()
+        country: country.trim().toUpperCase(),
+        rosterAthleteId: selectedRosterId || undefined
       });
       setName('');
       setClub('');
+      setSelectedRosterId('');
       alert('İdmançı turnirə uğurla qeydiyyatdan keçdi!');
       loadAllRegisteredAthletes();
       onRefreshData();
@@ -155,6 +173,41 @@ export default function Registration({
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {userRole === 'coach' && roster.length > 0 && (
+                    <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                      <label className="block text-xs font-bold text-blue-900 mb-2 flex items-center gap-1.5">
+                        <Users className="w-4 h-4" /> Siyahıdan (Roster) İdmançı Seçin
+                      </label>
+                      <select
+                        value={selectedRosterId}
+                        onChange={(e) => {
+                          const id = e.target.value;
+                          setSelectedRosterId(id);
+                          if (id) {
+                            const ath = roster.find(r => r.id === id);
+                            if (ath) {
+                              setName(ath.name);
+                              setClub(ath.club);
+                              setCountry(ath.country || 'AZE');
+                            }
+                          } else {
+                            setName('');
+                            setClub('');
+                          }
+                        }}
+                        className="w-full px-3.5 py-2.5 border border-blue-200 bg-white rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="">-- Yeni İdmançı Daxil Et --</option>
+                        {roster.map(r => (
+                          <option key={r.id} value={r.id}>{r.name} - {r.club}</option>
+                        ))}
+                      </select>
+                      <p className="text-[10px] text-blue-600 mt-1.5">
+                        İdmançını siyahıdan seçdikdə ad və klub məlumatları avtomatik doldurulur.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">İdmançının Adı Soyadı</label>
@@ -165,6 +218,7 @@ export default function Registration({
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Məs. FƏRİD MƏMMƏDOV"
                         className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                        readOnly={!!selectedRosterId}
                       />
                     </div>
 
@@ -177,6 +231,7 @@ export default function Registration({
                         onChange={(e) => setClub(e.target.value)}
                         placeholder="Məs. Qəbələ İK"
                         className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                        readOnly={!!selectedRosterId}
                       />
                     </div>
                   </div>
@@ -191,6 +246,7 @@ export default function Registration({
                         onChange={(e) => setCountry(e.target.value)}
                         placeholder="AZE"
                         className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                        readOnly={!!selectedRosterId}
                       />
                     </div>
 

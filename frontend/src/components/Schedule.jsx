@@ -116,6 +116,8 @@ export default function Schedule({ categories, selectedCategoryId, setSelectedCa
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-400 text-[10px] font-bold uppercase tracking-wider">
                   <th className="px-6 py-4">Kateqoriya / Raund</th>
+                  <th className="px-6 py-4 text-center">Tatami</th>
+                  <th className="px-6 py-4 text-center">Vaxt</th>
                   <th className="px-6 py-4">Aka (Qırmızı)</th>
                   <th className="px-6 py-4 text-center">Hesab</th>
                   <th className="px-6 py-4 text-right">Ao (Mavi)</th>
@@ -133,6 +135,14 @@ export default function Schedule({ categories, selectedCategoryId, setSelectedCa
                       <td className="px-6 py-4">
                         <span className="font-semibold text-gray-900 block">{cat?.name || 'Məlum deyil'}</span>
                         <span className="text-[10px] text-gray-400 font-medium uppercase mt-0.5 block">{match.roundName}</span>
+                      </td>
+                      
+                      <td className="px-6 py-4 text-center font-bold text-gray-700">
+                        {match.tatamiNumber ? `Tatami ${match.tatamiNumber}` : '-'}
+                      </td>
+
+                      <td className="px-6 py-4 text-center font-mono text-gray-500 text-[10px]">
+                        {match.estimatedTime ? new Date(match.estimatedTime).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </td>
                       
                       <td className="px-6 py-4">

@@ -196,13 +196,14 @@ app.post('/api/categories/:categoryId/generate-draws', async (req, res) => {
 // Add new athlete to a category
 app.post('/api/categories/:categoryId/athletes', authenticateToken, async (req, res) => {
   try {
-    const { name, club, country } = req.body;
+    const { name, club, country, rosterAthleteId } = req.body;
     const newAthlete = await db.addAthlete({
       name,
       club: req.user.clubName || club, // Force club from token if available
       country,
       categoryId: req.params.categoryId,
-      coachId: req.user.id
+      coachId: req.user.id,
+      rosterAthleteId
     });
     res.status(201).json(newAthlete);
   } catch (error) {
@@ -285,6 +286,68 @@ app.post('/api/matches/:matchId/score', async (req, res) => {
     }
 
     res.json(updatedMatch);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Roster API Routes
+app.get('/api/roster', authenticateToken, async (req, res) => {
+  try {
+    const roster = await db.getRosterAthletes(req.user.id);
+    res.json(roster);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/roster', authenticateToken, async (req, res) => {
+  try {
+    const { name, birthDate, gender, country } = req.body;
+    const newRosterAthlete = await db.addRosterAthlete({
+      name,
+      birthDate,
+      gender,
+      club: req.user.clubName || "Unknown Club", // ensure club is from token
+      country: country || 'AZE',
+      coachId: req.user.id
+    });
+    res.status(201).json(newRosterAthlete);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/roster/:id', authenticateToken, async (req, res) => {
+  try {
+    const { name, birthDate, gender, country } = req.body;
+    const updated = await db.updateRosterAthlete(req.params.id, req.user.id, {
+      name, birthDate, gender, country
+    });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/roster/:id', authenticateToken, async (req, res) => {
+  try {
+    await db.deleteRosterAthlete(req.params.id, req.user.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Athlete Check-in Route
+app.post('/api/athletes/:id/checkin', authenticateToken, async (req, res) => {
+  try {
+    const { checkedIn } = req.body;
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: "Only admins can check-in athletes" });
+    }
+    const updated = await db.checkInAthlete(req.params.id, checkedIn);
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

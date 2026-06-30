@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { fetchDraws } from '../api';
-import { Award, Zap } from 'lucide-react';
+import { fetchDraws, generateDraws } from '../api';
+import { Award, Zap, RefreshCw } from 'lucide-react';
 
-export default function Brackets({ categories, selectedCategoryId, setSelectedCategoryId, onSelectMatch, setActiveTab }) {
+export default function Brackets({ categories, selectedCategoryId, setSelectedCategoryId, onSelectMatch, setActiveTab, userRole, selectedEventId }) {
   const [draws, setDraws] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -83,12 +83,36 @@ export default function Brackets({ categories, selectedCategoryId, setSelectedCa
         </div>
         
         {selectedCategoryId && (
-          <button 
-            onClick={loadDraws}
-            className="px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 transition-all cursor-pointer"
-          >
-            Yenilə
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={loadDraws}
+              className="px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 transition-all cursor-pointer"
+            >
+              Yenilə
+            </button>
+
+            {userRole === 'admin' && (
+              <button 
+                onClick={async () => {
+                  if (!window.confirm('Bu kateqoriya üçün püşkatmanı yenidən yaratmaq istədiyinizə əminsiniz? Bütün mövcud matçlar silinəcək!')) return;
+                  try {
+                    setLoading(true);
+                    await generateDraws(selectedEventId, selectedCategoryId);
+                    await loadDraws();
+                    alert('Püşkatma uğurla yaradıldı!');
+                  } catch (err) {
+                    alert('Püşkatma yaradılarkən xəta baş verdi: ' + err.message);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Püşkatma Yarat
+              </button>
+            )}
+          </div>
         )}
       </div>
 

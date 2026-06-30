@@ -96,6 +96,44 @@ export async function registerAthlete(categoryId, athleteData) {
   return res.json();
 }
 
+// Roster (Coach's persistent athletes)
+export async function fetchRoster() {
+  const res = await fetch(`${API_BASE}/roster`, {
+    headers: getHeaders()
+  });
+  if (!res.ok) throw new Error('İdmançı siyahısını (roster) yükləmək mümkün olmadı');
+  return res.json();
+}
+
+export async function addRosterAthlete(athleteData) {
+  const res = await fetch(`${API_BASE}/roster`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(athleteData)
+  });
+  if (!res.ok) throw new Error('Roster-ə idmançı əlavə etmək mümkün olmadı');
+  return res.json();
+}
+
+export async function updateRosterAthlete(id, athleteData) {
+  const res = await fetch(`${API_BASE}/roster/${id}`, {
+    method: 'PUT',
+    headers: getHeaders(),
+    body: JSON.stringify(athleteData)
+  });
+  if (!res.ok) throw new Error('Roster məlumatını yeniləmək mümkün olmadı');
+  return res.json();
+}
+
+export async function deleteRosterAthlete(id) {
+  const res = await fetch(`${API_BASE}/roster/${id}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  if (!res.ok) throw new Error('İdmançını roster-dən silmək mümkün olmadı');
+  return res.json();
+}
+
 export async function fetchStats(eventId) {
   const res = await fetch(`${API_BASE}/events/${eventId}/statistics`);
   if (!res.ok) throw new Error('Statistikanı yükləmək mümkün olmadı');

@@ -398,13 +398,21 @@ export default function LiveScoreboard({ matchId, onBack, categories, language }
             <ArrowLeft className="w-4 h-4" /> {t('logout', language)} (Geri)
           </button>
 
-          <div className="text-center">
-            <span className="text-[10px] uppercase font-extrabold tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-              {cat?.name || 'Yarış Kateqoriyası'}
-            </span>
-            <span className="text-[10px] uppercase font-bold text-gray-400 ml-2">
-              {match?.roundName} ({t('kataLabel', language)})
-            </span>
+          <div className="text-center flex flex-col items-center gap-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase font-extrabold tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                {cat?.name || 'Yarış Kateqoriyası'}
+              </span>
+              <span className="text-[10px] uppercase font-bold text-gray-400">
+                {match?.roundName} ({t('kataLabel', language)})
+              </span>
+            </div>
+            {(match?.tatamiNumber || match?.estimatedTime) && (
+              <div className="flex gap-3 text-[10px] font-bold text-gray-500 uppercase">
+                {match?.tatamiNumber && <span>Tatami {match.tatamiNumber}</span>}
+                {match?.estimatedTime && <span>{new Date(match.estimatedTime).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' })}</span>}
+              </div>
+            )}
           </div>
 
           {/* OBS and Save Buttons */}
@@ -618,13 +626,21 @@ export default function LiveScoreboard({ matchId, onBack, categories, language }
           <ArrowLeft className="w-4 h-4" /> {t('logout', language)} (Geri)
         </button>
 
-        <div className="text-center">
-          <span className="text-[10px] uppercase font-extrabold tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-            {cat?.name || 'Yarış Kateqoriyası'}
-          </span>
-          <span className="text-[10px] uppercase font-bold text-gray-400 ml-2">
-            {match?.roundName}
-          </span>
+        <div className="text-center flex flex-col items-center gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase font-extrabold tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+              {cat?.name || 'Yarış Kateqoriyası'}
+            </span>
+            <span className="text-[10px] uppercase font-bold text-gray-400">
+              {match?.roundName}
+            </span>
+          </div>
+          {(match?.tatamiNumber || match?.estimatedTime) && (
+            <div className="flex gap-3 text-[10px] font-bold text-gray-500 uppercase">
+              {match?.tatamiNumber && <span>Tatami {match.tatamiNumber}</span>}
+              {match?.estimatedTime && <span>{new Date(match.estimatedTime).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' })}</span>}
+            </div>
+          )}
         </div>
 
         {/* OBS and Save Buttons */}

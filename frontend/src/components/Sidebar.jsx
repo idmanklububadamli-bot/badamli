@@ -27,6 +27,7 @@ export default function Sidebar({
       { id: 'stats', label: t('stats', language) },
       ...(userRole === 'admin' ? [{ id: 'admin', label: t('admin', language) }] : [])
     ] : []),
+    ...(userRole === 'coach' ? [{ id: 'roster', label: 'İdmançı Siyahım' }] : []),
     { id: 'solutions', label: 'Həllər', external: true },
     { id: 'payment', label: 'Ödəniş siyasəti', external: true },
     { id: 'platform', label: 'Platforma' },

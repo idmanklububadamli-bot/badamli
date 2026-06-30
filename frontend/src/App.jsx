@@ -13,7 +13,8 @@ import Sidebar from './components/Sidebar';
 import Platform from './components/Platform';
 import LoginModal from './components/LoginModal';
 import SpectatorBoard from './components/SpectatorBoard';
-import { Shield, Menu, Globe } from 'lucide-react';
+import Roster from './components/Roster';
+import { Shield, Menu, Globe, Users } from 'lucide-react';
 import { t } from './i18n';
 
 export default function App() {
@@ -381,6 +382,8 @@ export default function App() {
                 onSelectMatch={handleSelectMatch}
                 setActiveTab={setActiveTab}
                 language={language}
+                userRole={userRole}
+                selectedEventId={selectedEventId}
               />
             )}
             {activeTab === 'schedule' && (
@@ -416,6 +419,9 @@ export default function App() {
             )}
             {activeTab === 'stats' && (
               <Stats eventId={selectedEventId} language={language} />
+            )}
+            {activeTab === 'roster' && (
+              <Roster userRole={userRole} />
             )}
             {activeTab === 'admin' && (
               <Admin 

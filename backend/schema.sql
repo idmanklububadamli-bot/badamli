@@ -43,6 +43,18 @@ CREATE TABLE categories (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- 2.5 Roster Athletes table (persistent roster for coaches)
+CREATE TABLE roster_athletes (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    birth_date DATE,
+    gender TEXT,
+    club TEXT NOT NULL,
+    country TEXT DEFAULT 'AZE',
+    coach_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- 3. Athletes table
 CREATE TABLE athletes (
     id TEXT PRIMARY KEY,
@@ -51,6 +63,9 @@ CREATE TABLE athletes (
     country TEXT DEFAULT 'AZE',
     category_id TEXT REFERENCES categories(id) ON DELETE CASCADE,
     coach_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    checked_in BOOLEAN DEFAULT FALSE,
+    checked_in_at TIMESTAMP WITH TIME ZONE,
+    roster_athlete_id TEXT REFERENCES roster_athletes(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -75,5 +90,7 @@ CREATE TABLE matches (
     status TEXT DEFAULT 'scheduled',
     next_match_id TEXT,
     next_match_position TEXT,
+    tatami_number INTEGER DEFAULT 1,
+    estimated_time TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
