@@ -198,82 +198,120 @@ export default function Registration({
                         className="w-full px-3.5 py-2.5 border border-blue-200 bg-white rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                       >
                         <option value="">-- Yeni İdmançı Daxil Et --</option>
-                        {roster.map(r => (
-                          <option key={r.id} value={r.id}>{r.name} - {r.club}</option>
-                        ))}
-                      </select>
-                      <p className="text-[10px] text-blue-600 mt-1.5">
-                        İdmançını siyahıdan seçdikdə ad və klub məlumatları avtomatik doldurulur.
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">İdmançının Adı Soyadı</label>
-                      <input
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Məs. FƏRİD MƏMMƏDOV"
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
-                        readOnly={!!selectedRosterId}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Klub / Cəmiyyət</label>
-                      <input
-                        type="text"
-                        required
-                        value={club}
-                        onChange={(e) => setClub(e.target.value)}
-                        placeholder="Məs. Qəbələ İK"
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
-                        readOnly={!!selectedRosterId}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Ölkə</label>
-                      <input
-                        type="text"
-                        required
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        placeholder="AZE"
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
-                        readOnly={!!selectedRosterId}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kateqoriya</label>
-                      <select
-                        required
-                        value={selectedCatId}
-                        onChange={(e) => setSelectedCatId(e.target.value)}
-                        className="w-full px-3.5 py-2.5 border border-gray-200 bg-white rounded-lg text-xs focus:outline-hidden cursor-pointer"
+                        className="px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-bold transition-colors hover:bg-gray-800"
                       >
-                        <option value="" disabled>Seçin</option>
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                      </select>
-                    </div>
+                        İdarəçi Panelinə Keçid
+                      </button>
+                    ) : (
+                      <p className="text-xs font-bold text-red-500">
+                        Zəhmət olmasa turnir təşkilatçısı ilə əlaqə saxlayın.
+                      </p>
+                    )}
                   </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {userRole === 'coach' && roster.length > 0 && (
+                      <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                        <label className="block text-xs font-bold text-blue-900 mb-2 flex items-center gap-1.5">
+                          <Users className="w-4 h-4" /> Siyahıdan (Roster) İdmançı Seçin
+                        </label>
+                        <select
+                          value={selectedRosterId}
+                          onChange={(e) => {
+                            const id = e.target.value;
+                            setSelectedRosterId(id);
+                            if (id) {
+                              const ath = roster.find(r => r.id === id);
+                              if (ath) {
+                                setName(ath.name);
+                                setClub(ath.club);
+                                setCountry(ath.country || 'AZE');
+                              }
+                            } else {
+                              setName('');
+                              setClub('');
+                            }
+                          }}
+                          className="w-full px-3.5 py-2.5 border border-blue-200 bg-white rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                        >
+                          <option value="">-- Yeni İdmançı Daxil Et --</option>
+                          {roster.map(r => (
+                            <option key={r.id} value={r.id}>{r.name} - {r.club}</option>
+                          ))}
+                        </select>
+                        <p className="text-[10px] text-blue-600 mt-1.5">
+                          İdmançını siyahıdan seçdikdə ad və klub məlumatları avtomatik doldurulur.
+                        </p>
+                      </div>
+                    )}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:bg-gray-400"
-                  >
-                    {loading ? 'Qeydiyyatdan Keçirilir...' : 'Qeydiyyatı Tamamla'}
-                  </button>
-                </form>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">İdmançının Adı Soyadı</label>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Məs. FƏRİD MƏMMƏDOV"
+                          className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                          readOnly={!!selectedRosterId}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Klub / Cəmiyyət</label>
+                        <input
+                          type="text"
+                          required
+                          value={club}
+                          onChange={(e) => setClub(e.target.value)}
+                          placeholder="Məs. Qəbələ İK"
+                          className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                          readOnly={!!selectedRosterId}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Ölkə</label>
+                        <input
+                          type="text"
+                          required
+                          value={country}
+                          onChange={(e) => setCountry(e.target.value)}
+                          placeholder="AZE"
+                          className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                          readOnly={!!selectedRosterId}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kateqoriya</label>
+                        <select
+                          required
+                          value={selectedCatId}
+                          onChange={(e) => setSelectedCatId(e.target.value)}
+                          className="w-full px-3.5 py-2.5 border border-gray-200 bg-white rounded-lg text-xs focus:outline-hidden cursor-pointer"
+                        >
+                          <option value="" disabled>Seçin</option>
+                          {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:bg-gray-400"
+                    >
+                      {loading ? 'Qeydiyyatdan Keçirilir...' : 'Qeydiyyatı Tamamla'}
+                    </button>
+                  </form>
+                )}
               </div>
             )}
 
