@@ -147,16 +147,34 @@ export default function Brackets({ categories, selectedCategoryId, setSelectedCa
 
                 {/* Round Matches List */}
                 <div className="flex flex-col justify-around h-full gap-8">
-                  {round.matches.map(match => {
+                  {round.matches.map((match, mIndex) => {
                     const hasAthletes = match.athleteAkaId && match.athleteAoId && match.athleteAkaId !== 'BYE' && match.athleteAoId !== 'BYE';
                     const isPlayable = hasAthletes && match.status !== 'completed';
                     const isWinnerAka = match.status === 'completed' && match.winnerId === match.athleteAkaId;
                     const isWinnerAo = match.status === 'completed' && match.winnerId === match.athleteAoId;
 
+                    // Pool Logic for first round
+                    const isFirstRound = round.roundIndex === 0;
+                    const isPoolA = isFirstRound && mIndex < round.matches.length / 2;
+                    const isPoolB = isFirstRound && mIndex >= round.matches.length / 2;
+                    const showPoolALabel = isPoolA && mIndex === 0;
+                    const showPoolBLabel = isPoolB && mIndex === Math.floor(round.matches.length / 2);
+
                     return (
+                      <div key={match.id} className="relative">
+                        {showPoolALabel && (
+                          <div className="absolute -top-6 left-0 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-100 px-2 py-0.5 rounded">
+                            Pool A
+                          </div>
+                        )}
+                        {showPoolBLabel && (
+                          <div className="absolute -top-6 left-0 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-100 px-2 py-0.5 rounded mt-4">
+                            Pool B
+                          </div>
+                        )}
                       <div
                         key={match.id}
-                        className={`bg-white border rounded-xl shadow-xs transition-all relative overflow-hidden group ${
+                        className={`bg-white border rounded-xl shadow-xs transition-all relative overflow-hidden group flex flex-col ${
                           isPlayable ? 'hover:border-gray-300 hover:shadow-xs cursor-pointer' : 'border-gray-100'
                         }`}
                         onClick={() => {
@@ -166,6 +184,17 @@ export default function Brackets({ categories, selectedCategoryId, setSelectedCa
                           }
                         }}
                       >
+                        {/* Match Subtitle / Header */}
+                        <div className="bg-gray-50/80 px-2.5 py-1 border-b border-gray-100 flex justify-between items-center">
+                          <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-wider">
+                            Matç #{mIndex + 1}
+                          </span>
+                          {match.tatamiNumber && (
+                            <span className="text-[9px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                              T-{match.tatamiNumber}
+                            </span>
+                          )}
+                        </div>
                         {/* Red Athlete (Aka) */}
                         <div className={`p-3 flex items-center justify-between border-b border-gray-50 relative ${
                           isWinnerAka ? 'bg-red-50/20' : ''
@@ -232,6 +261,7 @@ export default function Brackets({ categories, selectedCategoryId, setSelectedCa
                             CANLI
                           </div>
                         )}
+                      </div>
                       </div>
                     );
                   })}
