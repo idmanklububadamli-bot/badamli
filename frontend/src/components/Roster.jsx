@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchRoster, addRosterAthlete, updateRosterAthlete, deleteRosterAthlete } from '../api';
-import { Users, Plus, Edit2, Trash2, CheckCircle, Save, X } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, CheckCircle, Save, X, Printer } from 'lucide-react';
 
 export default function Roster({ userRole }) {
   const [athletes, setAthletes] = useState([]);
@@ -105,7 +105,7 @@ export default function Roster({ userRole }) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl p-6 shadow-xs">
+      <div className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl p-6 shadow-xs print:hidden">
         <div>
           <h2 className="text-lg font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
             <Users className="w-5 h-5 text-blue-500" /> Mənim İdmançılarım
@@ -114,14 +114,23 @@ export default function Roster({ userRole }) {
             İdmançılarınızı bir dəfə əlavə edin, turnirlərə qeydiyyatı saniyələr içində bitirin.
           </p>
         </div>
-        {!isAdding && (
+        <div className="flex gap-2">
           <button
-            onClick={() => setIsAdding(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold tracking-wider hover:bg-gray-800 transition-colors"
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 rounded-xl text-xs font-bold tracking-wider transition-colors"
+            title="Siyahını PDF olaraq yüklə və ya Çap et"
           >
-            <Plus className="w-4 h-4" /> Yeni İdmançı
+            <Printer className="w-4 h-4" /> PDF / Çap
           </button>
-        )}
+          {!isAdding && (
+            <button
+              onClick={() => setIsAdding(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold tracking-wider hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Yeni İdmançı
+            </button>
+          )}
+        </div>
       </div>
 
       {isAdding && (
@@ -238,7 +247,7 @@ export default function Roster({ userRole }) {
                 <th className="px-6 py-4">İdmançı</th>
                 <th className="px-6 py-4 hidden sm:table-cell">Təvəllüd & Cins</th>
                 <th className="px-6 py-4">Klub / Ölkə</th>
-                <th className="px-6 py-4 text-right">Əməliyyatlar</th>
+                <th className="px-6 py-4 text-right print:hidden">Əməliyyatlar</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 text-sm">
@@ -255,7 +264,7 @@ export default function Roster({ userRole }) {
                     <div className="text-gray-900 font-medium">{athlete.club}</div>
                     <div className="text-[10px] text-gray-400 font-bold uppercase">{athlete.country}</div>
                   </td>
-                  <td className="px-6 py-4 text-right space-x-2">
+                  <td className="px-6 py-4 text-right space-x-2 print:hidden">
                     <button
                       onClick={() => handleEdit(athlete)}
                       className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"

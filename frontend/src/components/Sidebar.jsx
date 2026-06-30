@@ -23,7 +23,7 @@ export default function Sidebar({
     ...(selectedEventId ? [
       { id: 'brackets', label: t('brackets', language) },
       { id: 'schedule', label: t('schedule', language) },
-      { id: 'registration', label: t('registration', language) },
+      ...(userRole !== 'referee' ? [{ id: 'registration', label: t('registration', language) }] : []),
       { id: 'stats', label: t('stats', language) },
       ...(userRole === 'admin' ? [{ id: 'admin', label: t('admin', language) }] : [])
     ] : []),
@@ -54,6 +54,7 @@ export default function Sidebar({
 
   function getRoleLabel(role) {
     if (role === 'admin') return 'İdarəçi (Admin)';
+    if (role === 'referee') return 'Hakim (Referee)';
     if (role === 'coach') return 'Məşqçi (Coach)';
     if (user && user.id === 'guest') return 'Qonaq (İzləyici)';
     return 'İctimai İstifadəçi';

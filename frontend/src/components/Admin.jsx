@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { registerAthlete, generateDraws, fetchAthletes, updateEventDetails } from '../api';
+import { registerAthlete, generateDraws, fetchAthletes, updateEventDetails, createCategory } from '../api';
 import { UserPlus, RefreshCw, Users, ShieldAlert, Settings, Save, ToggleLeft, ToggleRight, MapPin } from 'lucide-react';
 
 const AZ_VENUES = [
@@ -56,6 +56,14 @@ export default function Admin({
   // Athlete list state
   const [athletes, setAthletes] = useState([]);
   const [athletesLoading, setAthletesLoading] = useState(false);
+
+  // Category creation state
+  const [catName, setCatName] = useState('');
+  const [catAge, setCatAge] = useState('');
+  const [catWeight, setCatWeight] = useState('');
+  const [catGender, setCatGender] = useState('Oğlanlar');
+  const [catType, setCatType] = useState('kumite');
+  const [catLoading, setCatLoading] = useState(false);
 
   // Sync event inputs when event object changes
   useEffect(() => {
@@ -162,6 +170,33 @@ export default function Admin({
     }
   }
 
+  async function handleAddCategory(e) {
+    e.preventDefault();
+    if (!catName.trim() || !catAge.trim() || !catWeight.trim()) {
+      alert('Zəhmət olmasa bütün sahələri doldurun.');
+      return;
+    }
+    setCatLoading(true);
+    try {
+      await createCategory(eventId, {
+        name: catName.trim(),
+        age: catAge.trim(),
+        weight: catWeight.trim(),
+        gender: catGender,
+        type: catType
+      });
+      alert('Yeni kateqoriya uğurla əlavə edildi!');
+      setCatName('');
+      setCatAge('');
+      setCatWeight('');
+      onRefreshEvent();
+    } catch (err) {
+      alert('Xəta baş verdi: ' + err.message);
+    } finally {
+      setCatLoading(false);
+    }
+  }
+
   async function handleGenerateBrackets() {
     if (!selectedCategoryId) {
       alert('Zəhmət olmasa kateqoriya seçin.');
@@ -185,7 +220,7 @@ export default function Admin({
     <div className="space-y-6">
       
       {/* 3-Column Admin Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         
         {/* Column 1: Event Configuration */}
         <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-xs space-y-4 h-fit">
@@ -450,6 +485,89 @@ export default function Admin({
           </form>
         </div>
 
+        {/* Column 4: Add New Category */}
+        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-xs space-y-4 h-fit">
+          <div className="flex items-center gap-2 border-b border-gray-50 pb-3">
+            <Settings className="w-5 h-5 text-gray-500" />
+            <h2 className="text-sm font-extrabold text-gray-900 uppercase tracking-wider">Kateqoriya Əlavə Et</h2>
+          </div>
+
+          <form onSubmit={handleAddCategory} className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kateqoriya Adı</label>
+              <input
+                type="text"
+                required
+                value={catName}
+                onChange={(e) => setCatName(e.target.value)}
+                placeholder="Məs. 10-11 Yaş (-40 kq) Oğlanlar"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Yaş Qrupu</label>
+                <input
+                  type="text"
+                  required
+                  value={catAge}
+                  onChange={(e) => setCatAge(e.target.value)}
+                  placeholder="Məs. 10-11 Yaş"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Çəki</label>
+                <input
+                  type="text"
+                  required
+                  value={catWeight}
+                  onChange={(e) => setCatWeight(e.target.value)}
+                  placeholder="Məs. -40 kq"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Cins</label>
+                <select
+                  required
+                  value={catGender}
+                  onChange={(e) => setCatGender(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 bg-white rounded-lg text-xs focus:outline-hidden cursor-pointer"
+                >
+                  <option value="Oğlanlar">Oğlanlar</option>
+                  <option value="Qızlar">Qızlar</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Növ</label>
+                <select
+                  required
+                  value={catType}
+                  onChange={(e) => setCatType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 bg-white rounded-lg text-xs focus:outline-hidden cursor-pointer"
+                >
+                  <option value="kumite">Kumite</option>
+                  <option value="kata">Kata</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={catLoading}
+              className="w-full py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:bg-gray-400 flex items-center justify-center gap-1.5"
+            >
+              <Save className="w-3.5 h-3.5" /> {catLoading ? 'Əlavə Edilir...' : 'Kateqoriya Yarat'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

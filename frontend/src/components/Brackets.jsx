@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchDraws, generateDraws } from '../api';
-import { Award, Zap, RefreshCw } from 'lucide-react';
+import { Award, Zap, RefreshCw, Printer } from 'lucide-react';
 
 export default function Brackets({ categories, selectedCategoryId, setSelectedCategoryId, onSelectMatch, setActiveTab, userRole, selectedEventId }) {
   const [draws, setDraws] = useState([]);
@@ -67,7 +67,7 @@ export default function Brackets({ categories, selectedCategoryId, setSelectedCa
   return (
     <div className="space-y-6">
       {/* Category selector */}
-      <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
           <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Kateqoriya Seçin</label>
           <select
@@ -83,7 +83,14 @@ export default function Brackets({ categories, selectedCategoryId, setSelectedCa
         </div>
         
         {selectedCategoryId && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => window.print()}
+              className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+              title="Cədvəli PDF olaraq yüklə və ya Çap et"
+            >
+              <Printer className="w-4 h-4" /> PDF / Çap Et
+            </button>
             <button 
               onClick={loadDraws}
               className="px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 transition-all cursor-pointer"
@@ -179,8 +186,7 @@ export default function Brackets({ categories, selectedCategoryId, setSelectedCa
                         }`}
                         onClick={() => {
                           if (isPlayable) {
-                            onSelectMatch(match.id);
-                            setActiveTab('scoreboard');
+                            onSelectMatch(match.id, match.tatamiNumber);
                           }
                         }}
                       >

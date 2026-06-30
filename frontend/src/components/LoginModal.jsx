@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Shield, Users, Globe, LogIn, UserPlus } from 'lucide-react';
+import { X, Shield, Users, Globe, LogIn, UserPlus, Activity } from 'lucide-react';
 import { loginUser, registerUser } from '../api';
 
 export default function LoginModal({ isOpen, onClose, onLogin }) {
@@ -106,7 +106,7 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
             <>
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rol Seçin</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setRole('coach')}
@@ -116,6 +116,16 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
                   >
                     <Users className="w-4 h-4" />
                     <span className="text-[10px] font-bold">Məşqçi</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRole('referee')}
+                    className={`p-2 border rounded-xl flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                      role === 'referee' ? 'border-blue-500 bg-blue-50/20 text-blue-700' : 'border-gray-100 text-gray-700'
+                    }`}
+                  >
+                    <Activity className="w-4 h-4" />
+                    <span className="text-[10px] font-bold">Hakim</span>
                   </button>
                   <button
                     type="button"

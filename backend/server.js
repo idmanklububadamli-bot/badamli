@@ -101,6 +101,19 @@ app.get('/api/events', async (req, res) => {
   }
 });
 
+// Create new event (Admin)
+app.post('/api/events', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: "Bunun üçün Admin icazəsi lazımdır." });
+    }
+    const newEvent = await db.createEvent(req.body);
+    res.status(201).json(newEvent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get event by ID
 app.get('/api/events/:id', async (req, res) => {
   try {
@@ -141,6 +154,19 @@ app.get('/api/events/:id/categories', async (req, res) => {
   try {
     const categories = await db.getCategories(req.params.id);
     res.json(categories);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create a new category for an event (Admin)
+app.post('/api/events/:id/categories', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: "Bunun üçün Admin icazəsi lazımdır." });
+    }
+    const newCategory = await db.createCategory(req.params.id, req.body);
+    res.status(201).json(newCategory);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -216,17 +242,56 @@ app.get('/api/events/:id/statistics', async (req, res) => {
   try {
     const athletes = await db.getAthletes(req.params.id);
     
-    // Group by club
+    const categories = await db.getCategories(req.params.id);
+    const allMatchesPromises = categories.map(c => db.getMatches(c.id));
+    const allMatchesResults = await Promise.all(allMatchesPromises);
+    const matches = allMatchesResults.flat();
+
     const clubStats = {};
     const countryStats = {};
+    const athleteMap = {};
     
     athletes.forEach(a => {
-      clubStats[a.club] = (clubStats[a.club] || 0) + 1;
-      countryStats[a.country] = (countryStats[a.country] || 0) + 1;
+      athleteMap[a.id] = a;
+      if (!clubStats[a.club]) clubStats[a.club] = { count: 0, gold: 0, silver: 0, bronze: 0 };
+      if (!countryStats[a.country]) countryStats[a.country] = { count: 0, gold: 0, silver: 0, bronze: 0 };
+      clubStats[a.club].count += 1;
+      countryStats[a.country].count += 1;
     });
 
-    const clubs = Object.entries(clubStats).map(([name, count]) => ({ name, count })).sort((a,b) => b.count - a.count);
-    const countries = Object.entries(countryStats).map(([name, count]) => ({ name, count })).sort((a,b) => b.count - a.count);
+    matches.forEach(m => {
+      if (m.status !== 'completed' || !m.winnerId || m.winnerId === 'BYE') return;
+
+      const loserId = m.winnerId === m.athleteAkaId ? m.athleteAoId : m.athleteAkaId;
+      const winner = athleteMap[m.winnerId];
+      const loser = loserId && loserId !== 'BYE' ? athleteMap[loserId] : null;
+
+      if (m.roundName === 'Final') {
+        if (winner) {
+          if (clubStats[winner.club]) clubStats[winner.club].gold += 1;
+          if (countryStats[winner.country]) countryStats[winner.country].gold += 1;
+        }
+        if (loser) {
+          if (clubStats[loser.club]) clubStats[loser.club].silver += 1;
+          if (countryStats[loser.country]) countryStats[loser.country].silver += 1;
+        }
+      } else if (m.roundName === '3-cü yer') {
+        if (winner) {
+          if (clubStats[winner.club]) clubStats[winner.club].bronze += 1;
+          if (countryStats[winner.country]) countryStats[winner.country].bronze += 1;
+        }
+      }
+    });
+
+    const sortStandings = (a, b) => {
+      if (b.gold !== a.gold) return b.gold - a.gold;
+      if (b.silver !== a.silver) return b.silver - a.silver;
+      if (b.bronze !== a.bronze) return b.bronze - a.bronze;
+      return b.count - a.count;
+    };
+
+    const clubs = Object.entries(clubStats).map(([name, data]) => ({ name, ...data })).sort(sortStandings);
+    const countries = Object.entries(countryStats).map(([name, data]) => ({ name, ...data })).sort(sortStandings);
 
     res.json({
       totalAthletes: athletes.length,

@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Search, Trophy, Activity } from 'lucide-react';
+import { Calendar, MapPin, Search, Trophy, Activity, Plus, X } from 'lucide-react';
 import { t } from '../i18n';
+import { createEvent } from '../api';
 
-export default function EventsList({ events, onSelectEvent, language }) {
+export default function EventsList({ events, onSelectEvent, language, userRole, onRefreshData }) {
   const [filter, setFilter] = useState('active'); // 'active', 'archived', 'all'
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Create Event Modal State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [newEvent, setNewEvent] = useState({ title: '', date: '', location: '' });
 
   // Handle search and filter
   const filteredEvents = events.filter(evt => {
@@ -19,7 +25,28 @@ export default function EventsList({ events, onSelectEvent, language }) {
       evt.location.toLowerCase().includes(query) ||
       (evt.description && evt.description.toLowerCase().includes(query))
     );
+    );
   });
+
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+    if (!newEvent.title.trim() || !newEvent.date) {
+      alert("Başlıq və tarix qeyd olunmalıdır.");
+      return;
+    }
+    setCreateLoading(true);
+    try {
+      await createEvent(newEvent);
+      alert("Yeni turnir uğurla yaradıldı!");
+      setShowCreateModal(false);
+      setNewEvent({ title: '', date: '', location: '' });
+      if (onRefreshData) onRefreshData();
+    } catch (err) {
+      alert("Turnir yaratmaq mümkün olmadı: " + err.message);
+    } finally {
+      setCreateLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -112,13 +139,94 @@ export default function EventsList({ events, onSelectEvent, language }) {
           <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
         
-        <button
-          onClick={() => setSearchQuery('')}
-          className="px-4 py-2 border border-gray-200 hover:border-gray-900 hover:bg-gray-50 rounded-xl text-xs font-bold text-gray-700 hover:text-gray-950 transition-all cursor-pointer shrink-0"
-        >
-          {t('btnShowAll', language)}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSearchQuery('')}
+            className="px-4 py-2 border border-gray-200 hover:border-gray-900 hover:bg-gray-50 rounded-xl text-xs font-bold text-gray-700 hover:text-gray-950 transition-all cursor-pointer shrink-0"
+          >
+            {t('btnShowAll', language)}
+          </button>
+          
+          {userRole === 'admin' && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
+            >
+              <Plus className="w-4 h-4" /> Yeni Turnir Yarat
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Create Event Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100">
+              <h2 className="text-lg font-black text-gray-900 tracking-tight">Yeni Turnir Yarat</h2>
+              <button 
+                onClick={() => setShowCreateModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateEvent} className="p-5 space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Turnirin Adı</label>
+                <input
+                  type="text"
+                  required
+                  value={newEvent.title}
+                  onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                  placeholder="Məs. Fudokan karate üzrə ölkə çempionatı"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Tarix</label>
+                <input
+                  type="date"
+                  required
+                  value={newEvent.date}
+                  onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Məkan</label>
+                <input
+                  type="text"
+                  value={newEvent.location}
+                  onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+                  placeholder="Məs. Bakı İdman Sarayı"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                >
+                  Ləğv Et
+                </button>
+                <button
+                  type="submit"
+                  disabled={createLoading}
+                  className="px-6 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors disabled:bg-gray-400 cursor-pointer flex items-center gap-2"
+                >
+                  {createLoading ? 'Yaradılır...' : 'Yarat'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Event Cards Grid */}
       <div className="space-y-4">

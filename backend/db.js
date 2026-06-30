@@ -99,6 +99,43 @@ function mapMatchFromDb(row) {
 }
 
 class Database {
+  async createEvent(eventData) {
+    const { data, error } = await supabase
+      .from('events')
+      .insert({
+        id: crypto.randomUUID(),
+        title: eventData.title || 'Yeni Turnir',
+        date: eventData.date || new Date().toISOString().split('T')[0],
+        location: eventData.location || 'Məlum deyil',
+        location_url: eventData.locationUrl || null,
+        description: eventData.description || null,
+        status: 'active',
+        registration_status: 'open'
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return mapEventFromDb(data);
+  }
+
+  async createCategory(eventId, categoryData) {
+    const { data, error } = await supabase
+      .from('categories')
+      .insert({
+        id: crypto.randomUUID(),
+        event_id: eventId,
+        name: categoryData.name,
+        gender: categoryData.gender,
+        age: categoryData.age,
+        weight: categoryData.weight,
+        type: categoryData.type || 'kumite'
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return mapCategoryFromDb(data);
+  }
+
   async getEvents() {
     const { data, error } = await supabase
       .from('events')
@@ -273,53 +310,86 @@ class Database {
   }
 
   async advanceWinner(completedMatch) {
-    if (!completedMatch.nextMatchId) return;
+    if (completedMatch.nextMatchId) {
+      const nextMatch = await this.getMatchById(completedMatch.nextMatchId);
+      if (nextMatch) {
+        const winnerId = completedMatch.winnerId;
+        const dbUpdates = {};
 
-    const nextMatch = await this.getMatchById(completedMatch.nextMatchId);
-    if (!nextMatch) return;
+        if (completedMatch.nextMatchPosition === 'Aka') {
+          dbUpdates.athlete_aka_id = winnerId;
+          nextMatch.athleteAkaId = winnerId;
+        } else {
+          dbUpdates.athlete_ao_id = winnerId;
+          nextMatch.athleteAoId = winnerId;
+        }
 
-    const winnerId = completedMatch.winnerId;
-    const dbUpdates = {};
+        const isBothFilled = nextMatch.athleteAkaId && nextMatch.athleteAoId;
+        if (isBothFilled && (nextMatch.athleteAkaId === 'BYE' || nextMatch.athleteAoId === 'BYE')) {
+          if (nextMatch.athleteAkaId === 'BYE' && nextMatch.athleteAoId === 'BYE') {
+             dbUpdates.winner_id = 'BYE';
+          } else {
+             dbUpdates.winner_id = nextMatch.athleteAkaId === 'BYE' ? nextMatch.athleteAoId : nextMatch.athleteAkaId;
+          }
+          dbUpdates.status = 'completed';
+          dbUpdates.score_aka = 0;
+          dbUpdates.score_ao = 0;
+          nextMatch.winnerId = dbUpdates.winner_id;
+          nextMatch.status = 'completed';
+        }
 
-    if (completedMatch.nextMatchPosition === 'Aka') {
-      dbUpdates.athlete_aka_id = winnerId;
-      nextMatch.athleteAkaId = winnerId;
-    } else {
-      dbUpdates.athlete_ao_id = winnerId;
-      nextMatch.athleteAoId = winnerId;
-    }
+        const { data, error } = await supabase
+          .from('matches')
+          .update(dbUpdates)
+          .eq('id', nextMatch.id)
+          .select()
+          .single();
 
-    // If both slots are filled and at least one is a BYE, complete it automatically!
-    const isBothFilled = nextMatch.athleteAkaId && nextMatch.athleteAoId;
-    if (isBothFilled && (nextMatch.athleteAkaId === 'BYE' || nextMatch.athleteAoId === 'BYE')) {
-      if (nextMatch.athleteAkaId === 'BYE' && nextMatch.athleteAoId === 'BYE') {
-         dbUpdates.winner_id = 'BYE';
-      } else {
-         dbUpdates.winner_id = nextMatch.athleteAkaId === 'BYE' ? nextMatch.athleteAoId : nextMatch.athleteAkaId;
+        if (!error) {
+          const updatedNextMatch = mapMatchFromDb(data);
+          if (updatedNextMatch.status === 'completed') {
+            await this.advanceWinner(updatedNextMatch);
+          }
+        }
       }
-      dbUpdates.status = 'completed';
-      dbUpdates.score_aka = 0;
-      dbUpdates.score_ao = 0;
-      nextMatch.winnerId = dbUpdates.winner_id;
-      nextMatch.status = 'completed';
     }
 
-    const { data, error } = await supabase
-      .from('matches')
-      .update(dbUpdates)
-      .eq('id', nextMatch.id)
-      .select()
-      .single();
+    if (completedMatch.roundName === 'Yarımfinal') {
+      const loserId = completedMatch.winnerId === completedMatch.athleteAkaId ? completedMatch.athleteAoId : completedMatch.athleteAkaId;
+      
+      const { data: bronzeMatchData } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('category_id', completedMatch.categoryId)
+        .eq('round_name', '3-cü yer')
+        .maybeSingle();
+      
+      if (bronzeMatchData) {
+        const bronzeMatch = mapMatchFromDb(bronzeMatchData);
+        const bUpdates = {};
+        
+        if (completedMatch.matchIndex === 0) {
+          bUpdates.athlete_aka_id = loserId;
+          bronzeMatch.athleteAkaId = loserId;
+        } else {
+          bUpdates.athlete_ao_id = loserId;
+          bronzeMatch.athleteAoId = loserId;
+        }
 
-    if (error) {
-      console.error("Failed to advance winner:", error);
-      return;
-    }
+        const isBothFilledB = bronzeMatch.athleteAkaId && bronzeMatch.athleteAoId;
+        if (isBothFilledB && (bronzeMatch.athleteAkaId === 'BYE' || bronzeMatch.athleteAoId === 'BYE')) {
+          if (bronzeMatch.athleteAkaId === 'BYE' && bronzeMatch.athleteAoId === 'BYE') {
+             bUpdates.winner_id = 'BYE';
+          } else {
+             bUpdates.winner_id = bronzeMatch.athleteAkaId === 'BYE' ? bronzeMatch.athleteAoId : bronzeMatch.athleteAkaId;
+          }
+          bUpdates.status = 'completed';
+          bUpdates.score_aka = 0;
+          bUpdates.score_ao = 0;
+        }
 
-    const updatedNextMatch = mapMatchFromDb(data);
-
-    if (updatedNextMatch.status === 'completed') {
-      await this.advanceWinner(updatedNextMatch);
+        await supabase.from('matches').update(bUpdates).eq('id', bronzeMatch.id);
+      }
     }
   }
 
@@ -417,6 +487,38 @@ class Database {
           estimated_time: estimatedTime
         });
       }
+    }
+
+    // Add Bronze Match
+    if (numRounds >= 2) {
+      const bronzeMatchId = `match-${categoryId}-bronze`;
+      const baseTime = new Date();
+      const matchDurationMs = 5 * 60000;
+      const estimatedTimeBronze = new Date(baseTime.getTime() + (bracketSize * matchDurationMs)).toISOString();
+
+      allMatches.push({
+        id: bronzeMatchId,
+        event_id: eventId,
+        category_id: categoryId,
+        round_name: "3-cü yer",
+        round_index: -1,
+        match_index: 0,
+        athlete_aka_id: null,
+        athlete_ao_id: null,
+        score_aka: 0,
+        score_ao: 0,
+        kata_scores_aka: [7.5, 7.5, 7.5, 7.5, 7.5],
+        kata_scores_ao: [7.5, 7.5, 7.5, 7.5, 7.5],
+        warnings_aka: [],
+        warnings_ao: [],
+        senshu: null,
+        winner_id: null,
+        status: "scheduled",
+        next_match_id: null,
+        next_match_position: null,
+        tatami_number: 1,
+        estimated_time: estimatedTimeBronze
+      });
     }
 
     // Smart Seeding: Separate club members (teammate separation)

@@ -42,6 +42,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Referee Tatami Selection
+  const [refereeTatami, setRefereeTatami] = useState(localStorage.getItem('refereeTatami') || null);
+
   // Parse URL on mount for standalone OBS view
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -146,10 +149,17 @@ export default function App() {
     setActiveTab('dashboard');
   }
 
-  function handleSelectMatch(matchId) {
-    if (userRole !== 'admin') {
-      alert(t('roleAdmin', language) + " tələb olunur. Zəhmət olmasa yan menyudan İdarəçi olaraq Giriş edin.");
-      setLoginModalOpen(true);
+  function handleSelectMatch(matchId, matchTatamiNumber) {
+    if (userRole === 'public') {
+      alert("Matçı idarə etmək üçün İdarəçi olaraq daxil olmalısınız.");
+      return;
+    }
+    if (userRole === 'referee' && matchTatamiNumber && matchTatamiNumber !== refereeTatami) {
+      alert(`Siz yalnız Tatami ${refereeTatami} üzrə matçları idarə edə bilərsiniz.`);
+      return;
+    }
+    if (userRole === 'coach') {
+      alert(t('roleAdmin', language) + " tələb olunur.");
       return;
     }
     setSelectedMatchId(matchId);
@@ -211,7 +221,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-50/50 flex flex-col font-sans">
       
       {/* Navigation Header */}
-      <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 z-40">
+      <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 z-40 print:hidden">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           
           {/* Logo */}
@@ -245,7 +255,7 @@ export default function App() {
                     { id: 'dashboard', label: t('dashboard', language) },
                     { id: 'brackets', label: t('brackets', language) },
                     { id: 'schedule', label: t('schedule', language) },
-                    { id: 'registration', label: t('registration', language) },
+                    ...(userRole !== 'referee' ? [{ id: 'registration', label: t('registration', language) }] : []),
                     { id: 'stats', label: t('stats', language) }
                   ].map(tab => {
                     const isActive = activeTab === tab.id || (tab.id === 'brackets' && activeTab === 'scoreboard');
@@ -363,6 +373,8 @@ export default function App() {
             events={events}
             onSelectEvent={setSelectedEventId}
             language={language}
+            userRole={userRole}
+            onRefreshData={loadInitialData}
           />
         ) : (
           <>
@@ -386,6 +398,7 @@ export default function App() {
                 language={language}
                 userRole={userRole}
                 selectedEventId={selectedEventId}
+                refereeTatami={userRole === 'referee' ? refereeTatami : null}
               />
             )}
             {activeTab === 'schedule' && (
@@ -439,7 +452,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 py-6">
+      <footer className="bg-white border-t border-gray-100 py-6 print:hidden">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-gray-400">
           <span>&copy; 2026 Badamlı Online. {t('rightsReserved', language)}</span>
           <span className="flex items-center gap-1">
@@ -471,8 +484,49 @@ export default function App() {
       <LoginModal 
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
-        onLogin={handleLogin}
+        onLogin={(token, userData) => {
+          handleLogin(token, userData);
+          if (userData && userData.role === 'referee') {
+             setRefereeTatami(null);
+             localStorage.removeItem('refereeTatami');
+          }
+        }}
       />
+
+      {/* Referee Tatami Selection Modal */}
+      {userRole === 'referee' && !refereeTatami && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-100 rounded-2xl w-full max-w-sm p-6 shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Shield className="w-8 h-8" />
+            </div>
+            <div>
+              <h2 className="text-xl font-extrabold text-gray-900">Xoş gəldiniz, Hakim!</h2>
+              <p className="text-xs text-gray-500 mt-2">Zəhmət olmasa, idarə edəcəyiniz Tatamini (Meydançanı) seçin.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[1, 2, 3, 4].map(num => (
+                <button
+                  key={num}
+                  onClick={() => {
+                    setRefereeTatami(String(num));
+                    localStorage.setItem('refereeTatami', String(num));
+                  }}
+                  className="py-3 bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-700 border border-gray-200 hover:border-blue-200 rounded-xl font-bold text-lg transition-all cursor-pointer"
+                >
+                  Tatami {num}
+                </button>
+              ))}
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="text-xs font-bold text-gray-400 hover:text-red-500 underline transition-colors cursor-pointer"
+            >
+              Fərqli hesabla daxil ol
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

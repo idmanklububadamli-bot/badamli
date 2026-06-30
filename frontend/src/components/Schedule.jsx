@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchDraws } from '../api';
-import { Play, CheckCircle, Clock } from 'lucide-react';
+import { Play, CheckCircle, Clock, Printer } from 'lucide-react';
 
-export default function Schedule({ categories, selectedCategoryId, setSelectedCategoryId, onSelectMatch, setActiveTab }) {
+export default function Schedule({ categories, selectedCategoryId, setSelectedCategoryId, onSelectMatch, setActiveTab, refereeTatami }) {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -45,6 +45,7 @@ export default function Schedule({ categories, selectedCategoryId, setSelectedCa
   }
 
   const filteredMatches = matches.filter(match => {
+    if (refereeTatami && String(match.tatamiNumber) !== String(refereeTatami)) return false;
     if (statusFilter === 'all') return true;
     return match.status === statusFilter;
   });
@@ -52,7 +53,7 @@ export default function Schedule({ categories, selectedCategoryId, setSelectedCa
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <div className="flex flex-col sm:flex-row gap-4">
           <div>
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Kateqoriya üzrə filtrlə</label>
@@ -83,12 +84,21 @@ export default function Schedule({ categories, selectedCategoryId, setSelectedCa
           </div>
         </div>
 
-        <button
-          onClick={loadAllMatches}
-          className="self-end md:self-auto px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 transition-all cursor-pointer"
-        >
-          Siyahını Yenilə
-        </button>
+        <div className="flex gap-2 self-end md:self-auto flex-wrap">
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+            title="Siyahını PDF olaraq yüklə və ya Çap et"
+          >
+            <Printer className="w-4 h-4" /> PDF / Çap Et
+          </button>
+          <button
+            onClick={loadAllMatches}
+            className="px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 transition-all cursor-pointer"
+          >
+            Siyahını Yenilə
+          </button>
+        </div>
       </div>
 
       {loading && (
@@ -195,8 +205,7 @@ export default function Schedule({ categories, selectedCategoryId, setSelectedCa
                         {isPlayable ? (
                           <button
                             onClick={() => {
-                              onSelectMatch(match.id);
-                              setActiveTab('scoreboard');
+                              onSelectMatch(match.id, match.tatamiNumber);
                             }}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-[10px] font-bold tracking-wider uppercase transition-colors cursor-pointer"
                           >

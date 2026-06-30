@@ -42,6 +42,16 @@ export async function fetchEvents() {
   return res.json();
 }
 
+export async function createEvent(eventData) {
+  const res = await fetch(`${API_BASE}/events`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(eventData)
+  });
+  if (!res.ok) throw new Error('Turnir yaratmaq mümkün olmadı');
+  return res.json();
+}
+
 export async function fetchEventDetails(id) {
   const res = await fetch(`${API_BASE}/events/${id}`);
   if (!res.ok) throw new Error('Turnir detallarını yükləmək mümkün olmadı');
@@ -61,6 +71,16 @@ export async function updateEventDetails(id, eventData) {
 export async function fetchCategories(eventId) {
   const res = await fetch(`${API_BASE}/events/${eventId}/categories`);
   if (!res.ok) throw new Error('Kateqoriya siyahısını yükləmək mümkün olmadı');
+  return res.json();
+}
+
+export async function createCategory(eventId, categoryData) {
+  const res = await fetch(`${API_BASE}/events/${eventId}/categories`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(categoryData)
+  });
+  if (!res.ok) throw new Error('Kateqoriya yaratmaq mümkün olmadı');
   return res.json();
 }
 
