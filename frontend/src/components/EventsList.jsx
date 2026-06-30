@@ -25,7 +25,6 @@ export default function EventsList({ events, onSelectEvent, language, userRole, 
       evt.location.toLowerCase().includes(query) ||
       (evt.description && evt.description.toLowerCase().includes(query))
     );
-    );
   });
 
   const handleCreateEvent = async (e) => {
