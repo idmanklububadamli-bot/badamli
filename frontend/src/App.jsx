@@ -356,6 +356,8 @@ export default function App() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
         {activeTab === 'platform' ? (
           <Platform language={language} />
+        ) : activeTab === 'roster' ? (
+          <Roster userRole={userRole} />
         ) : selectedEventId === null ? (
           <EventsList 
             events={events}
@@ -419,9 +421,6 @@ export default function App() {
             )}
             {activeTab === 'stats' && (
               <Stats eventId={selectedEventId} language={language} />
-            )}
-            {activeTab === 'roster' && (
-              <Roster userRole={userRole} />
             )}
             {activeTab === 'admin' && (
               <Admin 
