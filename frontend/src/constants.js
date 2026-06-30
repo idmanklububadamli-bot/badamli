@@ -1,0 +1,43 @@
+export const AGE_GROUPS = [
+  "4-5 yaş",
+  "6-7 yaş",
+  "8-9 yaş",
+  "10-11 yaş",
+  "12-13 yaş",
+  "14-15 yaş",
+  "16-17 yaş",
+  "18-20 yaş",
+  "18+ yaş (Böyüklər)",
+  "Veteranlar"
+];
+
+export const WEIGHT_CATEGORIES = [
+  "Kata",
+  "-20 kq",
+  "-25 kq",
+  "-27 kq",
+  "-30 kq",
+  "-32 kq",
+  "-35 kq",
+  "-40 kq",
+  "-45 kq",
+  "-50 kq",
+  "-52 kq",
+  "-55 kq",
+  "-57 kq",
+  "-60 kq",
+  "-61 kq",
+  "-63 kq",
+  "-65 kq",
+  "-67 kq",
+  "-68 kq",
+  "-70 kq",
+  "-75 kq",
+  "-84 kq",
+  "+54 kq",
+  "+59 kq",
+  "+68 kq",
+  "+70 kq",
+  "+84 kq",
+  "Mütləq çəki"
+];

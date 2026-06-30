@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { registerAthlete, fetchAthletes, fetchRoster } from '../api';
-import { UserPlus, Search, LogIn, CheckCircle, Apple, Play, Users } from 'lucide-react';
+import { registerAthlete, fetchAthletes, fetchRoster, createCategory } from '../api';
+import { UserPlus, Search, LogIn, CheckCircle, Apple, Play, Users, Settings, Save } from 'lucide-react';
+import { AGE_GROUPS, WEIGHT_CATEGORIES } from '../constants';
 
 export default function Registration({ 
   event, 
@@ -23,6 +24,14 @@ export default function Registration({
   // Coach's roster
   const [roster, setRoster] = useState([]);
   const [selectedRosterId, setSelectedRosterId] = useState('');
+
+  // Inline Category Creation (Admin only)
+  const [catAge, setCatAge] = useState('');
+  const [catWeight, setCatWeight] = useState('');
+  const [catGender, setCatGender] = useState('Oğlanlar');
+  const [catType, setCatType] = useState('kumite');
+  const [catLoading, setCatLoading] = useState(false);
+  const [showCatForm, setShowCatForm] = useState(false);
 
   const isClosed = event?.registrationStatus === 'closed';
 
@@ -80,6 +89,36 @@ export default function Registration({
       alert('Xəta baş verdi: ' + err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleAddCategory(e) {
+    e.preventDefault();
+    if (!catAge.trim() || !catWeight.trim()) {
+      alert('Zəhmət olmasa yaş və çəki sahələrini doldurun.');
+      return;
+    }
+    setCatLoading(true);
+    
+    const generatedName = `${catAge} (${catWeight}) ${catGender} ${catType === 'kata' ? 'Kata' : ''}`.trim();
+    
+    try {
+      await createCategory(event.id, {
+        name: generatedName,
+        age: catAge.trim(),
+        weight: catWeight.trim(),
+        gender: catGender,
+        type: catType
+      });
+      alert('Yeni kateqoriya uğurla əlavə edildi!');
+      setCatAge('');
+      setCatWeight('');
+      setShowCatForm(false);
+      onRefreshData();
+    } catch (err) {
+      alert('Xəta baş verdi: ' + err.message);
+    } finally {
+      setCatLoading(false);
     }
   }
 
@@ -230,22 +269,85 @@ export default function Registration({
                             } else {
                               setName('');
                               setClub('');
-                            }
-                          }}
-                          className="w-full px-3.5 py-2.5 border border-blue-200 bg-white rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-blue-500"
-                        >
-                          <option value="">-- Yeni İdmançı Daxil Et --</option>
-                          {roster.map(r => (
-                            <option key={r.id} value={r.id}>{r.name} - {r.club}</option>
-                          ))}
-                        </select>
-                        <p className="text-[10px] text-blue-600 mt-1.5">
-                          İdmançını siyahıdan seçdikdə ad və klub məlumatları avtomatik doldurulur.
-                        </p>
-                      </div>
-                    )}
+                    </div>
+                  )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {userRole === 'admin' && (
+                    <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden mb-4">
+                      <button 
+                        type="button" 
+                        onClick={() => setShowCatForm(!showCatForm)}
+                        className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                      >
+                        <span className="flex items-center gap-1.5"><Settings className="w-4 h-4" /> Kateqoriya Siyahıda Yoxdur? Yeni Yarat</span>
+                        <span className="text-[10px] bg-gray-200 px-2 py-0.5 rounded-full">{showCatForm ? 'Gizlət' : 'Göstər'}</span>
+                      </button>
+                      
+                      {showCatForm && (
+                        <div className="p-4 border-t border-gray-200 space-y-4 bg-white">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Yaş Qrupu</label>
+                              <select
+                                value={catAge}
+                                onChange={(e) => setCatAge(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden"
+                              >
+                                <option value="" disabled>Seçin</option>
+                                {AGE_GROUPS.map(age => <option key={age} value={age}>{age}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Çəki</label>
+                              <select
+                                value={catWeight}
+                                onChange={(e) => setCatWeight(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden"
+                              >
+                                <option value="" disabled>Seçin</option>
+                                {WEIGHT_CATEGORIES.map(w => <option key={w} value={w}>{w}</option>)}
+                              </select>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Cins</label>
+                              <select
+                                value={catGender}
+                                onChange={(e) => setCatGender(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden"
+                              >
+                                <option value="Oğlanlar">Oğlanlar</option>
+                                <option value="Qızlar">Qızlar</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Növ</label>
+                              <select
+                                value={catType}
+                                onChange={(e) => setCatType(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden"
+                              >
+                                <option value="kumite">Kumite</option>
+                                <option value="kata">Kata</option>
+                              </select>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleAddCategory}
+                            disabled={catLoading}
+                            className="w-full py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 disabled:bg-gray-400"
+                          >
+                            <Save className="w-3.5 h-3.5" /> {catLoading ? 'Yaradılır...' : 'Kateqoriya Yarat'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">İdmançının Adı Soyadı</label>
                         <input
