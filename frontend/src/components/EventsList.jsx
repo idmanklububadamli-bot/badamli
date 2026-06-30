@@ -198,7 +198,7 @@ export default function EventsList({ events, onSelectEvent, language, userRole, 
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Məkan Seçimi</label>
                 <select
-                  value={newEvent.location}
+                  value={['Bakı İdman Sarayı', 'Gəncə İdman Sarayı', 'Sumqayıt Olimpiya İdman Kompleksi', 'Sərhədçi İdman Olimpiya Mərkəzi'].includes(newEvent.location) ? newEvent.location : (newEvent.location === '' ? '' : 'Digər')}
                   onChange={(e) => {
                     const val = e.target.value;
                     let url = '';
@@ -206,6 +206,14 @@ export default function EventsList({ events, onSelectEvent, language, userRole, 
                     else if (val === 'Gəncə İdman Sarayı') url = 'https://maps.app.goo.gl/B9C1V1R2KxL8v9nF6';
                     else if (val === 'Sumqayıt Olimpiya İdman Kompleksi') url = 'https://maps.app.goo.gl/T4Yn8y3w9o5W2P7r8';
                     else if (val === 'Sərhədçi İdman Olimpiya Mərkəzi') url = 'https://maps.app.goo.gl/8n9xL7y9w3W2P7r8';
+                    else if (val === 'Digər') {
+                      setNewEvent({...newEvent, location: 'Digər', locationUrl: ''});
+                      return;
+                    }
+                    else if (val === '') {
+                      setNewEvent({...newEvent, location: '', locationUrl: ''});
+                      return;
+                    }
                     
                     setNewEvent({...newEvent, location: val, locationUrl: url});
                   }}
@@ -219,7 +227,7 @@ export default function EventsList({ events, onSelectEvent, language, userRole, 
                   <option value="Digər">Digər (Əllə daxil et)</option>
                 </select>
 
-                {(!newEvent.location || newEvent.location === 'Digər' || !['Bakı İdman Sarayı', 'Gəncə İdman Sarayı', 'Sumqayıt Olimpiya İdman Kompleksi', 'Sərhədçi İdman Olimpiya Mərkəzi'].includes(newEvent.location)) && (
+                {(!['', 'Bakı İdman Sarayı', 'Gəncə İdman Sarayı', 'Sumqayıt Olimpiya İdman Kompleksi', 'Sərhədçi İdman Olimpiya Mərkəzi'].includes(newEvent.location) || newEvent.location === 'Digər') && (
                   <div className="space-y-2 mt-2">
                     <input
                       type="text"
