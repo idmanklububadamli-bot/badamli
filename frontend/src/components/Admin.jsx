@@ -28,6 +28,50 @@ const AZ_VENUES = [
   { name: "Cəlilabad Olimpiya İdman Kompleksi", query: "Cəlilabad Olimpiya İdman Kompleksi, Azerbaijan" }
 ];
 
+const AGE_GROUPS = [
+  "4-5 yaş",
+  "6-7 yaş",
+  "8-9 yaş",
+  "10-11 yaş",
+  "12-13 yaş",
+  "14-15 yaş",
+  "16-17 yaş",
+  "18-20 yaş",
+  "18+ yaş (Böyüklər)",
+  "Veteranlar"
+];
+
+const WEIGHT_CATEGORIES = [
+  "Kata",
+  "-20 kq",
+  "-25 kq",
+  "-27 kq",
+  "-30 kq",
+  "-32 kq",
+  "-35 kq",
+  "-40 kq",
+  "-45 kq",
+  "-50 kq",
+  "-52 kq",
+  "-55 kq",
+  "-57 kq",
+  "-60 kq",
+  "-61 kq",
+  "-63 kq",
+  "-65 kq",
+  "-67 kq",
+  "-68 kq",
+  "-70 kq",
+  "-75 kq",
+  "-84 kq",
+  "+54 kq",
+  "+59 kq",
+  "+68 kq",
+  "+70 kq",
+  "+84 kq",
+  "Mütləq çəki"
+];
+
 export default function Admin({ 
   event, 
   categories, 
@@ -58,7 +102,6 @@ export default function Admin({
   const [athletesLoading, setAthletesLoading] = useState(false);
 
   // Category creation state
-  const [catName, setCatName] = useState('');
   const [catAge, setCatAge] = useState('');
   const [catWeight, setCatWeight] = useState('');
   const [catGender, setCatGender] = useState('Oğlanlar');
@@ -172,21 +215,24 @@ export default function Admin({
 
   async function handleAddCategory(e) {
     e.preventDefault();
-    if (!catName.trim() || !catAge.trim() || !catWeight.trim()) {
-      alert('Zəhmət olmasa bütün sahələri doldurun.');
+    if (!catAge.trim() || !catWeight.trim()) {
+      alert('Zəhmət olmasa yaş və çəki sahələrini doldurun.');
       return;
     }
     setCatLoading(true);
+    
+    // Auto-generate name based on selections
+    const generatedName = `${catAge} (${catWeight}) ${catGender} ${catType === 'kata' ? 'Kata' : ''}`.trim();
+    
     try {
       await createCategory(eventId, {
-        name: catName.trim(),
+        name: generatedName,
         age: catAge.trim(),
         weight: catWeight.trim(),
         gender: catGender,
         type: catType
       });
       alert('Yeni kateqoriya uğurla əlavə edildi!');
-      setCatName('');
       setCatAge('');
       setCatWeight('');
       onRefreshEvent();
@@ -493,41 +539,31 @@ export default function Admin({
           </div>
 
           <form onSubmit={handleAddCategory} className="space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kateqoriya Adı</label>
-              <input
-                type="text"
-                required
-                value={catName}
-                onChange={(e) => setCatName(e.target.value)}
-                placeholder="Məs. 10-11 Yaş (-40 kq) Oğlanlar"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
-              />
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Yaş Qrupu</label>
-                <input
-                  type="text"
+                <select
                   required
                   value={catAge}
                   onChange={(e) => setCatAge(e.target.value)}
-                  placeholder="Məs. 10-11 Yaş"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
-                />
+                  className="w-full px-3 py-2 border border-gray-200 bg-white rounded-lg text-xs focus:outline-hidden cursor-pointer"
+                >
+                  <option value="" disabled>Seçin</option>
+                  {AGE_GROUPS.map(age => <option key={age} value={age}>{age}</option>)}
+                </select>
               </div>
 
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Çəki</label>
-                <input
-                  type="text"
+                <select
                   required
                   value={catWeight}
                   onChange={(e) => setCatWeight(e.target.value)}
-                  placeholder="Məs. -40 kq"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:ring-1 focus:ring-gray-900"
-                />
+                  className="w-full px-3 py-2 border border-gray-200 bg-white rounded-lg text-xs focus:outline-hidden cursor-pointer"
+                >
+                  <option value="" disabled>Seçin</option>
+                  {WEIGHT_CATEGORIES.map(w => <option key={w} value={w}>{w}</option>)}
+                </select>
               </div>
             </div>
 
