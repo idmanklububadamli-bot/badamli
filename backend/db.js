@@ -289,14 +289,17 @@ class Database {
       nextMatch.athleteAoId = winnerId;
     }
 
-    // If the next match has a bye in the other slot, complete it automatically!
-    const partnerId = completedMatch.nextMatchPosition === 'Aka' ? nextMatch.athleteAoId : nextMatch.athleteAkaId;
-    if (winnerId === 'BYE' || partnerId === 'BYE') {
-      dbUpdates.winner_id = winnerId === 'BYE' ? partnerId : winnerId;
+    // If both slots are filled and at least one is a BYE, complete it automatically!
+    const isBothFilled = nextMatch.athleteAkaId && nextMatch.athleteAoId;
+    if (isBothFilled && (nextMatch.athleteAkaId === 'BYE' || nextMatch.athleteAoId === 'BYE')) {
+      if (nextMatch.athleteAkaId === 'BYE' && nextMatch.athleteAoId === 'BYE') {
+         dbUpdates.winner_id = 'BYE';
+      } else {
+         dbUpdates.winner_id = nextMatch.athleteAkaId === 'BYE' ? nextMatch.athleteAoId : nextMatch.athleteAkaId;
+      }
       dbUpdates.status = 'completed';
       dbUpdates.score_aka = 0;
       dbUpdates.score_ao = 0;
-
       nextMatch.winnerId = dbUpdates.winner_id;
       nextMatch.status = 'completed';
     }
@@ -442,10 +445,28 @@ class Database {
       }
     }
 
+    function getBracketSeeding(size) {
+      if (size <= 2) return [0, 1];
+      let matches = [0, 1];
+      for (let rounds = 1; rounds < Math.log2(size); rounds++) {
+        const nextMatches = [];
+        const currentSize = 1 << rounds;
+        for (let i = 0; i < matches.length; i++) {
+          nextMatches.push(matches[i]);
+          nextMatches.push((currentSize * 2 - 1) - matches[i]);
+        }
+        matches = nextMatches;
+      }
+      return matches;
+    }
+
+    const bracketOrder = getBracketSeeding(bracketSize);
     const pairedAthletes = [];
     for (let i = 0; i < bracketSize; i += 2) {
-      const aka = seedList[i] ? seedList[i].id : 'BYE';
-      const ao = seedList[i + 1] ? seedList[i + 1].id : 'BYE';
+      const seedAka = bracketOrder[i];
+      const seedAo = bracketOrder[i + 1];
+      const aka = seedList[seedAka] ? seedList[seedAka].id : 'BYE';
+      const ao = seedList[seedAo] ? seedList[seedAo].id : 'BYE';
       pairedAthletes.push({ aka, ao });
     }
 
