@@ -251,8 +251,22 @@ class Database {
 
     const updatedMatch = mapMatchFromDb(data);
 
-    if (updates.status === 'completed' && updatedMatch.winnerId) {
-      await this.advanceWinner(updatedMatch);
+    if (updates.status === 'completed') {
+      if (updatedMatch.winnerId) {
+        await this.advanceWinner(updatedMatch);
+      }
+      
+      // Dynamic Time Update
+      if (updatedMatch.estimatedTime) {
+        const now = new Date();
+        const estimated = new Date(updatedMatch.estimatedTime);
+        const diffMs = now.getTime() - estimated.getTime();
+        
+        // Adjust if difference > 1 minute
+        if (Math.abs(diffMs) > 60000) {
+          await this.adjustUpcomingMatchesTime(updatedMatch.eventId, updatedMatch.tatamiNumber, updatedMatch.estimatedTime, diffMs);
+        }
+      }
     }
 
     return await this.getMatchById(matchId);
@@ -303,6 +317,29 @@ class Database {
 
     if (updatedNextMatch.status === 'completed') {
       await this.advanceWinner(updatedNextMatch);
+    }
+  }
+
+  async adjustUpcomingMatchesTime(eventId, tatamiNumber, afterTime, diffMs) {
+    const { data: upcomingMatches, error } = await supabase
+      .from('matches')
+      .select('id, estimated_time')
+      .eq('event_id', eventId)
+      .eq('tatami_number', tatamiNumber || 1)
+      .eq('status', 'scheduled')
+      .gt('estimated_time', afterTime);
+
+    if (error || !upcomingMatches || upcomingMatches.length === 0) return;
+
+    for (const m of upcomingMatches) {
+      if (m.estimated_time) {
+        const currentEst = new Date(m.estimated_time);
+        const newEst = new Date(currentEst.getTime() + diffMs);
+        await supabase
+          .from('matches')
+          .update({ estimated_time: newEst.toISOString() })
+          .eq('id', m.id);
+      }
     }
   }
 
