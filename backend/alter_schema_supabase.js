@@ -48,6 +48,34 @@ async function runAlter() {
       label: "athletes.roster_athlete_id sütununun əlavə edilməsi",
       sql: `ALTER TABLE athletes ADD COLUMN IF NOT EXISTS roster_athlete_id TEXT REFERENCES roster_athletes(id) ON DELETE SET NULL;`
     },
+    {
+      label: "matches.tatami_number sütununun əlavə edilməsi",
+      sql: `ALTER TABLE matches ADD COLUMN IF NOT EXISTS tatami_number INTEGER DEFAULT 1;`
+    },
+    {
+      label: "matches.estimated_time sütununun əlavə edilməsi",
+      sql: `ALTER TABLE matches ADD COLUMN IF NOT EXISTS estimated_time TIMESTAMP WITH TIME ZONE;`
+    },
+    {
+      label: "roster_athletes üçün RLS aktivləşdirməsi",
+      sql: `ALTER TABLE roster_athletes ENABLE ROW LEVEL SECURITY;`
+    },
+    {
+      label: "roster_athletes SELECT policy",
+      sql: `DROP POLICY IF EXISTS "Coaches can view their own roster" ON roster_athletes; CREATE POLICY "Coaches can view their own roster" ON roster_athletes FOR SELECT USING (auth.uid() = coach_id);`
+    },
+    {
+      label: "roster_athletes INSERT policy",
+      sql: `DROP POLICY IF EXISTS "Coaches can insert into their own roster" ON roster_athletes; CREATE POLICY "Coaches can insert into their own roster" ON roster_athletes FOR INSERT WITH CHECK (auth.uid() = coach_id);`
+    },
+    {
+      label: "roster_athletes UPDATE policy",
+      sql: `DROP POLICY IF EXISTS "Coaches can update their own roster" ON roster_athletes; CREATE POLICY "Coaches can update their own roster" ON roster_athletes FOR UPDATE USING (auth.uid() = coach_id);`
+    },
+    {
+      label: "roster_athletes DELETE policy",
+      sql: `DROP POLICY IF EXISTS "Coaches can delete from their own roster" ON roster_athletes; CREATE POLICY "Coaches can delete from their own roster" ON roster_athletes FOR DELETE USING (auth.uid() = coach_id);`
+    }
   ];
 
   for (const step of steps) {
@@ -86,6 +114,22 @@ CREATE TABLE IF NOT EXISTS roster_athletes (
 ALTER TABLE athletes ADD COLUMN IF NOT EXISTS checked_in BOOLEAN DEFAULT FALSE;
 ALTER TABLE athletes ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE athletes ADD COLUMN IF NOT EXISTS roster_athlete_id TEXT REFERENCES roster_athletes(id) ON DELETE SET NULL;
+
+ALTER TABLE matches ADD COLUMN IF NOT EXISTS tatami_number INTEGER DEFAULT 1;
+ALTER TABLE matches ADD COLUMN IF NOT EXISTS estimated_time TIMESTAMP WITH TIME ZONE;
+
+ALTER TABLE roster_athletes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Coaches can view their own roster" ON roster_athletes;
+CREATE POLICY "Coaches can view their own roster" ON roster_athletes FOR SELECT USING (auth.uid() = coach_id);
+
+DROP POLICY IF EXISTS "Coaches can insert into their own roster" ON roster_athletes;
+CREATE POLICY "Coaches can insert into their own roster" ON roster_athletes FOR INSERT WITH CHECK (auth.uid() = coach_id);
+
+DROP POLICY IF EXISTS "Coaches can update their own roster" ON roster_athletes;
+CREATE POLICY "Coaches can update their own roster" ON roster_athletes FOR UPDATE USING (auth.uid() = coach_id);
+
+DROP POLICY IF EXISTS "Coaches can delete from their own roster" ON roster_athletes;
+CREATE POLICY "Coaches can delete from their own roster" ON roster_athletes FOR DELETE USING (auth.uid() = coach_id);
     `);
     console.log("=".repeat(60));
     console.log("\nSQL-i kopyalayıb Supabase Dashboard > SQL Editor-da icra etdikdən sonra 'node alter_schema_supabase.js' yenidən işlədin.");
